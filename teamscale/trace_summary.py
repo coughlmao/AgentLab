@@ -2,8 +2,8 @@
 
     python -m teamscale.trace_summary experiments/traces/<run>.jsonl
 
-The goal is the one from the job description: a researcher should be able to
-read what a large team did -- and where it went wrong -- in minutes.
+The goal: anyone should be able to read what a large team did -- and where
+it went wrong -- in minutes.
 """
 from __future__ import annotations
 

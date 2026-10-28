@@ -17,24 +17,39 @@ audits — not in any claim about real LLM behaviour. An `AgentBackend`
 protocol (`teamscale/agents.py`) is the seam where a real LLM backend plugs
 in later; `LLMBackend` is a documented stub that raises `NotImplementedError`.
 
-## why this exists: mapping to the work
+## the questions this lab asks
 
-Built to mirror the responsibilities of Anthropic's *Staff Research Engineer,
-Multi-Agent Scaling* role:
+Teams of agents are getting bigger, but bigger is not obviously better: every
+added agent costs tokens, coordination, and new ways to fail. This lab exists
+to answer, with experiments rather than intuition:
 
-| role responsibility | where it lives here |
+1. **Scaling** — as a team grows from 1 to 32 agents, how do success, cost,
+   and wall time actually change? The answer turns out to depend on the
+   coordination strategy and on whether the task decomposes at all.
+2. **The bend** — where does the curve bend: at what team size does one more
+   agent stop paying for itself?
+3. **Coordination** — how much work do uncoordinated teams duplicate, and
+   does paying for verification earn its cost back?
+4. **Budgets** — given a fixed compute budget, how should it be allocated
+   across a team and its subtasks to finish fastest and most reliably?
+5. **Trust** — how much of any measured result is the work, and how much is
+   an artifact of how it was evaluated?
+
+## what's inside
+
+| piece | what it does |
 |---|---|
-| Design, run and interpret large-scale experiments on agent teams | `teamscale/experiment.py` — 450-run grid, scaling tables, bend points, best-strategy-under-budget |
-| How performance/efficiency change as team size, compute and task horizon grow | grid axes: team size {1…32} × budget × `horizon_scale`; three task families with different parallelism structure |
-| Build and scale the systems that run large agent teams reliably; debug failures that only appear at scale | `teamscale/harness.py` — discrete-event scheduler over a dependency DAG, hard token budgets, per-run JSONL traces, budget-skip and error-propagation semantics |
-| Design evaluations for long-horizon problems, and keep their results trustworthy | `long_horizon` family + `teamscale/audits.py` (below) |
-| Tooling and metrics so researchers can see what a team is doing and why | `teamscale/metrics.py`, `python -m teamscale.trace_summary` |
-| Representative project: "allocate a fixed compute budget across a team" | the `budget_aware` strategy: difficulty-proportional allocation with reserves |
-| Representative project: "an eval that distinguishes real gains from artifacts of the evaluation setup" | the audits — this project's signature addition |
+| `teamscale/experiment.py` | the experiment grid (450 runs): scaling tables, bend points, best strategy under a fixed budget |
+| grid axes | team size {1…32} × compute budget × `horizon_scale`, across three task families with different parallelism structure |
+| `teamscale/harness.py` | discrete-event scheduler over a dependency DAG, hard token budgets, per-run JSONL traces, budget-skip and error-propagation semantics — the machinery for running large teams reliably and debugging the failures that only appear at scale |
+| `long_horizon` + `teamscale/audits.py` | evaluation for long-horizon problems, and the audits that keep its results trustworthy |
+| `teamscale/metrics.py`, `python -m teamscale.trace_summary` | metrics and traces, so a run can be read and understood in minutes |
+| `budget_aware` strategy | difficulty-proportional allocation of a fixed budget, with reserves |
+| the audits | distinguish real gains from artifacts of the evaluation setup — this project's signature piece |
 
-## our additions (not in the job description)
+## design choices
 
-Three design choices go beyond the brief:
+Three design choices define the project:
 
 1. **Evaluation-artifact audits** (`teamscale/audits.py`), inspired by
    *Unsolvability Ceiling in Multi-LLM Routing: An Empirical Study of
