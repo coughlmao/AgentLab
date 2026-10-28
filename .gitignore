@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+experiments/traces/
+experiments/sandboxes/
+.pytest_cache/
