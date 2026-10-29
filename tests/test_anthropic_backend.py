@@ -257,3 +257,34 @@ def test_anthropic_real_path_run_end_to_end(tmp_path):
     t_in = sum(e.get("tokens_in", 0) for e in trace if e["event"] == "model_call")
     assert t_in == result["tokens_in"]
     assert not any("test-key" in json.dumps(e) for e in trace)
+
+
+#--------------------------------------------------------------------
+def test_anthropic_credential_command_prefers_new_prefix(monkeypatch):
+    from teamscale.anthropic_backend import resolve_anthropic_api_key
+
+    monkeypatch.setenv("TEAMSCALE_ANTHROPIC_CRED_CMD", "printf new-key")
+    monkeypatch.setenv("TEAMSCLAE_ANTHROPIC_CRED_CMD", "printf legacy-key")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    assert resolve_anthropic_api_key() == "new-key"
+
+
+def test_anthropic_model_prefers_new_prefix(monkeypatch):
+    from teamscale.anthropic_backend import AnthropicLLMBackend
+
+    monkeypatch.setenv("TEAMSCALE_MODEL", "new-model")
+    monkeypatch.setenv("TEAMSCLAE_MODEL", "legacy-model")
+
+    backend = AnthropicLLMBackend(api_key="test-key")
+    assert backend.model == "new-model"
+
+
+def test_anthropic_credential_command_falls_back_to_legacy(monkeypatch):
+    from teamscale.anthropic_backend import resolve_anthropic_api_key
+
+    monkeypatch.delenv("TEAMSCALE_ANTHROPIC_CRED_CMD", raising=False)
+    monkeypatch.setenv("TEAMSCLAE_ANTHROPIC_CRED_CMD", "printf legacy-key")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+    assert resolve_anthropic_api_key() == "legacy-key"

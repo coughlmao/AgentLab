@@ -24,11 +24,14 @@
 # - the live run requires a passing calibration gate report:
 #     .venv/bin/python -m teamscale.calibrate \
 #       --out experiments/error-accumulation/calibration.json
-#     TEAMSCLAE_PROVIDER=anthropic \
-#     TEAMSCLAE_ANTHROPIC_CRED_CMD="..." \
+#     TEAMSCALE_PROVIDER=anthropic \
+#     TEAMSCALE_ANTHROPIC_CRED_CMD="..." \
 #       .venv/bin/python -m teamscale.config_experiment \
 #       experiments/error-accumulation/experiment.yaml \
 #       --calibration experiments/error-accumulation/calibration.json
+#   Note: TEAMSCLAE_ANTHROPIC_CRED_CMD is a legacy alias.
+#   Use TEAMSCALE_ANTHROPIC_CRED_CMD for new runs.
+#
 #   Then:
 #     .venv/bin/python -m teamscale.replay results/error-accumulation/<run-id>
 #     .venv/bin/python -m teamscale.analyze results/error-accumulation/<run-id>

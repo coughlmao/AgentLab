@@ -12,11 +12,12 @@ Design constraints mirror llm_backend.py exactly:
 - Standard library only (urllib). No SDK dependency.
 - The API key is NEVER read from a file, logged, printed, or written into
   traces or results. It comes from exactly two places:
-    1. the shell command in env TEAMSCLAE_ANTHROPIC_CRED_CMD (its stdout
-       is the key), or
+    1. the shell command in env TEAMSCALE_ANTHROPIC_CRED_CMD (legacy alias:
+       TEAMSCLAE_ANTHROPIC_CRED_CMD; its stdout is the key), or
     2. env ANTHROPIC_API_KEY, if already present in the process environment.
   If neither is configured, construction raises a clear error.
-- Model: env TEAMSCLAE_MODEL, default "claude-haiku-4-5".
+- Model: env TEAMSCALE_MODEL (legacy alias: TEAMSCLAE_MODEL),
+  default "claude-haiku-4-5".
 - Every tool call is sandbox-contained (teamscale.tasks.ensure_within),
   via the shared SandboxTools surface from llm_backend.
 - Token usage is taken from the API responses themselves (usage
@@ -39,7 +40,7 @@ from pathlib import Path
 from .llm_backend import (BLIND_SYSTEM_PROMPT, MAX_MODEL_CALLS, SYSTEM_PROMPT,
                            TOOL_SCHEMAS, BackendError, FixResult, SandboxTools,
                            _default_transport, build_user_prompt,
-                           tool_schemas)
+                           tool_schemas, teamscale_env)
 from .real_tasks import RealModule
 from .tasks import SandboxViolation
 
@@ -55,14 +56,15 @@ def resolve_anthropic_api_key() -> str:
     The key is returned to the caller (the backend constructor) and nowhere
     else; it is never logged or persisted by this project.
     """
-    cmd = os.environ.get("TEAMSCLAE_ANTHROPIC_CRED_CMD", "").strip()
+    cmd = (teamscale_env("ANTHROPIC_CRED_CMD", "") or "").strip()
     if cmd:
         proc = subprocess.run(cmd, shell=True, capture_output=True,
                               text=True, timeout=30)
         key = proc.stdout.strip()
         if proc.returncode != 0 or not key:
             raise BackendError(
-                "TEAMSCLAE_ANTHROPIC_CRED_CMD ran but produced no key on "
+                "TEAMSCALE_ANTHROPIC_CRED_CMD (legacy alias: "
+                "TEAMSCLAE_ANTHROPIC_CRED_CMD) ran but produced no key on "
                 f"stdout (exit {proc.returncode}); check the credential "
                 "command.")
         return key
@@ -70,8 +72,9 @@ def resolve_anthropic_api_key() -> str:
     if key:
         return key
     raise BackendError(
-        "no API key configured: set TEAMSCLAE_ANTHROPIC_CRED_CMD to a "
-        "command whose stdout is the key, or export ANTHROPIC_API_KEY.")
+        "no API key configured: set TEAMSCALE_ANTHROPIC_CRED_CMD "
+        "(legacy alias: TEAMSCLAE_ANTHROPIC_CRED_CMD) to a command "
+        "whose stdout is the key, or export ANTHROPIC_API_KEY.")
 
 
 def _to_anthropic(schemas) -> list:
@@ -96,7 +99,7 @@ class AnthropicLLMBackend:
     def __init__(self, model: str | None = None, api_key: str | None = None,
                  transport=None, max_model_calls: int = MAX_MODEL_CALLS,
                  blind: bool = False):
-        self.model = model or os.environ.get("TEAMSCLAE_MODEL", DEFAULT_MODEL)
+        self.model = model or teamscale_env("MODEL", DEFAULT_MODEL)
         self._api_key = (api_key if api_key is not None
                          else resolve_anthropic_api_key())
         self._transport = transport or _default_transport

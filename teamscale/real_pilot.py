@@ -7,8 +7,9 @@ Grid (defaults): team sizes {1, 2, 4, 8} x strategies {independent,
 orchestrated, verified} x seeds {0, 1, 2} = 36 runs of the real task
 generator (8 broken modules, checks executed for ground truth).
 
-Difficulty: --difficulty (or env TEAMSCLAE_DIFFICULTY) selects the task
-generator's defect catalogue -- "standard" (default; the original pilot)
+Difficulty: --difficulty (or env TEAMSCALE_DIFFICULTY; legacy alias
+TEAMSCLAE_DIFFICULTY) selects the task generator's defect
+catalogue -- "standard" (default; the original pilot)
 or "hard" (subtler, multi-defect and cross-module defects). The grid,
 strategies and result shapes are identical either way, and the summary
 records which difficulty produced it.
@@ -41,15 +42,17 @@ Honest scope notes, also written into every summary this produces:
 - ground truth is strict: the check script's exit code, re-executed by the
   runner at the end of the run, never the agent's own claim.
 
-Provider: env TEAMSCLAE_PROVIDER selects the backend -- "openai"
-(default, OpenAI chat completions) or "anthropic" (Claude Messages API).
-The model comes from env TEAMSCLAE_MODEL; the default follows the
+Provider: env TEAMSCALE_PROVIDER (legacy alias TEAMSCLAE_PROVIDER)
+selects the backend -- "openai" (default, OpenAI chat completions)
+or "anthropic" (Claude Messages API).
+The model comes from env TEAMSCALE_MODEL (legacy alias:
+TEAMSCLAE_MODEL); the default follows the
 provider (gpt-5-mini / claude-haiku-4-5). Results, traces, and the spend
 ledger have the same shape either way, so runs stay comparable.
 
 Caps and accounting:
 - per-run token cap (default 400,000) and per-subtask budget.
-- a global spend cap (env TEAMSCLAE_SPEND_CAP_USD, default $15) enforced
+- a global spend cap (env TEAMSCALE_SPEND_CAP_USD; legacy alias TEAMSCLAE_SPEND_CAP_USD, default $15) enforced
   through a JSON ledger updated after every run: a new run only starts if
   ledger_spent + worst_case_run_estimate <= cap, where the estimate is the
   per-run token cap priced at an 80/20 input/output mix.
@@ -68,7 +71,7 @@ from pathlib import Path
 
 from .anthropic_backend import AnthropicLLMBackend
 from .fake_backend import FakeLLMBackend
-from .llm_backend import OpenAILLMBackend
+from .llm_backend import OpenAILLMBackend, teamscale_env
 from .real_tasks import check_all, make_real_task, materialize, run_check
 
 # USD per 1M tokens: (input, output). Extend here for new models.
@@ -375,10 +378,12 @@ def main(argv=None) -> int:
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--per-run-token-cap", type=int, default=PER_RUN_TOKEN_CAP)
     ap.add_argument("--spend-cap", type=float, default=None,
-                    help="default: env TEAMSCLAE_SPEND_CAP_USD or 15.00")
+                    help="default: env TEAMSCALE_SPEND_CAP_USD "
+                         "(legacy alias: TEAMSCLAE_SPEND_CAP_USD) or 15.00")
     ap.add_argument("--difficulty", default=None,
                     help="'standard' (default) or 'hard'; "
-                         "env TEAMSCLAE_DIFFICULTY also works")
+                         "env TEAMSCALE_DIFFICULTY also works"
+                         "(legacy alias: TEAMSCLAE_DIFFICULTY)")
     ap.add_argument("--blind", action="store_true",
                     help="remove the run_check tool from the agents' own "
                          "tool set; checks happen only externally "
@@ -386,9 +391,9 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     spend_cap = (args.spend_cap if args.spend_cap is not None else
-                 float(os.environ.get("TEAMSCLAE_SPEND_CAP_USD", "15.00")))
+                 float(teamscale_env("SPEND_CAP_USD", "15.00")))
     difficulty = (args.difficulty
-                  or os.environ.get("TEAMSCLAE_DIFFICULTY")
+                  or teamscale_env("DIFFICULTY")
                   or "standard").strip().lower()
     if difficulty not in ("standard", "hard"):
         ap.error(f"unknown difficulty {difficulty!r}: "
@@ -406,19 +411,20 @@ def main(argv=None) -> int:
             blind=cfg.get("blind", False))
         ledger_name = "ledger_fake.json"
     else:
-        provider = os.environ.get("TEAMSCLAE_PROVIDER", "openai").strip().lower()
+        provider = teamscale_env("PROVIDER", "openai").strip().lower()
         if provider == "anthropic":
-            model = os.environ.get("TEAMSCLAE_MODEL", "claude-haiku-4-5")
+            model = teamscale_env("MODEL", "claude-haiku-4-5")
             AnthropicLLMBackend(model=model)  # fail fast if no credential
             factory = lambda cfg: AnthropicLLMBackend(
                 model=model, blind=cfg.get("blind", False))
         elif provider == "openai":
-            model = os.environ.get("TEAMSCLAE_MODEL", "gpt-5-mini")
+            model = teamscale_env("MODEL", "gpt-5-mini")
             OpenAILLMBackend(model=model)  # fail fast if no credential
             factory = lambda cfg: OpenAILLMBackend(
                 model=model, blind=cfg.get("blind", False))
         else:
-            ap.error(f"unknown TEAMSCLAE_PROVIDER {provider!r}: "
+            ap.error(f"unknown TEAMSCALE_PROVIDER (legacy alias: "
+                     f"TEAMSCLAE_PROVIDER) {provider!r}: "
                      "use 'openai' or 'anthropic'")
         ledger_name = "ledger.json"
 
