@@ -29,8 +29,8 @@
 #   .venv/bin/python -m teamscale.config_experiment \
 #     experiments/model-calibrated-generation/experiment.yaml --fake
 #   git tag agentlab-a3-v1            # after the build commit
-#   TEAMSCAlE_PROVIDER=anthropic \
-#   TEAMSCAlE_ANTHROPIC_CRED_CMD="..." \
+#   TEAMSCALE_PROVIDER=anthropic \
+#   TEAMSCALE_ANTHROPIC_CRED_CMD="..." \
 #     .venv/bin/python -m teamscale.config_experiment \
 #     experiments/model-calibrated-generation/experiment.yaml
 #   .venv/bin/python -m teamscale.replay \
