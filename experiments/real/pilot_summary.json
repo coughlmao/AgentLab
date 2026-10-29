@@ -1,0 +1,74 @@
+{
+ "backend": "fake",
+ "model": "fake",
+ "family": "codebase_repair",
+ "grid": {
+  "team_sizes": [
+   1,
+   2
+  ],
+  "strategies": [
+   "orchestrated",
+   "verified"
+  ],
+  "seeds": [
+   0
+  ]
+ },
+ "runs_completed": 4,
+ "runs_skipped_spend_cap": [],
+ "runs_failed": [],
+ "total_tokens_in": 67687,
+ "total_tokens_out": 20160,
+ "total_cost_usd": 0.0,
+ "ledger_spent_usd": 0.0,
+ "spend_cap_usd": 15.0,
+ "mean_fraction_correct": 0.8438,
+ "note": "agents execute sequentially within a run; team organization is what varies. ground truth is re-executed check exit codes.",
+ "results": [
+  {
+   "run_id": "fake-codebase_repair-orchestrated-n1-s0",
+   "strategy": "orchestrated",
+   "team_size": 1,
+   "seed": 0,
+   "success": false,
+   "fraction_correct": 0.625,
+   "total_tokens": 19506,
+   "cost_usd": 0.0,
+   "retries": 0
+  },
+  {
+   "run_id": "fake-codebase_repair-orchestrated-n2-s0",
+   "strategy": "orchestrated",
+   "team_size": 2,
+   "seed": 0,
+   "success": false,
+   "fraction_correct": 0.875,
+   "total_tokens": 19510,
+   "cost_usd": 0.0,
+   "retries": 0
+  },
+  {
+   "run_id": "fake-codebase_repair-verified-n1-s0",
+   "strategy": "verified",
+   "team_size": 1,
+   "seed": 0,
+   "success": false,
+   "fraction_correct": 0.875,
+   "total_tokens": 26874,
+   "cost_usd": 0.0,
+   "retries": 3
+  },
+  {
+   "run_id": "fake-codebase_repair-verified-n2-s0",
+   "strategy": "verified",
+   "team_size": 2,
+   "seed": 0,
+   "success": true,
+   "fraction_correct": 1.0,
+   "total_tokens": 21957,
+   "cost_usd": 0.0,
+   "retries": 1
+  }
+ ]
+}

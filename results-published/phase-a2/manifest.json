@@ -1,0 +1,155 @@
+{
+ "experiment": "error-accumulation",
+ "question": "How does the benefit of external verification change as error accumulation increases?",
+ "run_id": "20261029T063426Z-1a68400f",
+ "config": {
+  "name": "error-accumulation",
+  "question": "How does the benefit of external verification change as error accumulation increases?",
+  "provider": "anthropic",
+  "model": "claude-haiku-5-5",
+  "family": "error_accumulation",
+  "difficulty": "hard",
+  "blind": true,
+  "horizons": [
+   2,
+   5,
+   10,
+   20,
+   50
+  ],
+  "strategies": [
+   "orchestrated",
+   "verified"
+  ],
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "team_size": 4,
+  "per_run_token_cap": 400000,
+  "spend_cap_usd": 15.0,
+  "workers": 4,
+  "output_root": "results",
+  "analysis": {
+   "series": "strategy",
+   "group_by": "horizon",
+   "value": "final_state_correct",
+   "x_scale": "log2",
+   "x_label": "chain length (steps, log2)",
+   "caveats_position": "top",
+   "contrast": {
+    "positive": "verified",
+    "negative": "orchestrated",
+    "across": [
+     2,
+     50
+    ]
+   },
+   "steps": {
+    "file": "steps.csv",
+    "index": "step_index",
+    "value": "state_correct"
+   }
+  },
+  "caveats": [
+   "The verifier is the ground-truth check itself (a perfect verifier). A noisy or learned verifier is a different question, deliberately out of scope.",
+   "One model (claude-haiku-5-5), one task family (chained transformations, new in this phase). The comparison that matters is within this experiment -- the verification effect as a function of horizon -- not levels against Phase A.",
+   "Steps execute sequentially within every run; team size (fixed at 4) rotates which agent takes each step. This experiment studies dependency, not parallel speedup.",
+   "Five seeds per cell: per-horizon intervals are wide by construction. The citable numbers are the pooled and across-horizon contrasts.",
+   "Survival probability is P(state correct after step k) against the generator's ground truth; local correctness (the step applied correctly to the input actually received) is recorded separately in steps.csv, so inherited errors are distinguishable from new ones."
+  ]
+ },
+ "config_sha256": "1a68400fb3c4429a76b332d31afc0dca3b02c9423a10c9487924101737a72372",
+ "config_source": "experiments/error-accumulation/experiment.yaml",
+ "git": {
+  "commit": "efcbbf79e2846a776c55f148b683289a215b45c0",
+  "dirty": false
+ },
+ "code_version": "0.2.0",
+ "provider": "anthropic",
+ "requested_provider": "anthropic",
+ "model": "claude-haiku-5-5",
+ "pricing": {
+  "model": "claude-haiku-5-5",
+  "input_per_1m_usd": 0.1,
+  "output_per_1m_usd": 0.5
+ },
+ "difficulty": "hard",
+ "blind": true,
+ "family": "error_accumulation",
+ "generator_version": "chain-gen-1",
+ "prompt_hash": "708a6252f675a7d7d05621f25df71044151f9d6bff0c6c99b1f615efe57db635",
+ "calibration_version": "calibration-1",
+ "calibration": {
+  "version": "calibration-1",
+  "gate": "pass",
+  "generator_version": "chain-gen-1",
+  "sha256": "0fa05afed1d8ddb0d2c7c8e4507c5ff772ec678b6e311a2f91e3f4b1a1de5d09",
+  "source": "experiments/error-accumulation/calibration.json"
+ },
+ "replay_version": "2",
+ "analysis_version": "2",
+ "analysis": {
+  "series": "strategy",
+  "group_by": "horizon",
+  "value": "final_state_correct",
+  "x_scale": "log2",
+  "x_label": "chain length (steps, log2)",
+  "caveats_position": "top",
+  "contrast": {
+   "positive": "verified",
+   "negative": "orchestrated",
+   "across": [
+    2,
+    50
+   ]
+  },
+  "steps": {
+   "file": "steps.csv",
+   "index": "step_index",
+   "value": "state_correct"
+  }
+ },
+ "caveats": [
+  "The verifier is the ground-truth check itself (a perfect verifier). A noisy or learned verifier is a different question, deliberately out of scope.",
+  "One model (claude-haiku-5-5), one task family (chained transformations, new in this phase). The comparison that matters is within this experiment -- the verification effect as a function of horizon -- not levels against Phase A.",
+  "Steps execute sequentially within every run; team size (fixed at 4) rotates which agent takes each step. This experiment studies dependency, not parallel speedup.",
+  "Five seeds per cell: per-horizon intervals are wide by construction. The citable numbers are the pooled and across-horizon contrasts.",
+  "Survival probability is P(state correct after step k) against the generator's ground truth; local correctness (the step applied correctly to the input actually received) is recorded separately in steps.csv, so inherited errors are distinguishable from new ones."
+ ],
+ "grid": {
+  "family": "error_accumulation",
+  "horizons": [
+   2,
+   5,
+   10,
+   20,
+   50
+  ],
+  "strategies": [
+   "orchestrated",
+   "verified"
+  ],
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "team_size": 4
+ },
+ "n_runs_planned": 50,
+ "per_run_token_cap": 400000,
+ "spend_cap_usd": 15.0,
+ "workers": 4,
+ "started_at": "2026-10-29T06:34:26.290990+00:00",
+ "host": {
+  "system": "Linux",
+  "machine": "x86_64",
+  "python": "3.12.3"
+ }
+}

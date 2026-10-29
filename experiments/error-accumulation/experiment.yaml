@@ -1,0 +1,71 @@
+# AgentLab Phase A-2 experiment.
+#
+# The one question: how does the benefit of external verification
+# change as error accumulation increases?
+#
+# The pre-registered design (mechanism, falsification criterion,
+# calibration gate, threats) lives in DESIGN.md next to this file.
+# In brief:
+# - family: error_accumulation -- chains of dependent steps; each
+#   step consumes the previous step's output state, so an unrecovered
+#   error propagates. Horizon is the manipulation that induces
+#   accumulation, not the concept under study.
+# - blind: true -- chains carry no check tool at all; the verified
+#   strategy's external check is the only check feedback, as in
+#   Phase A.
+# - the primary contrast is verified vs orchestrated: identical
+#   prompts and coordination; the only difference is the external
+#   check after each step plus one retry on failure. The analysis
+#   declaration below also pre-registers the across contrast:
+#   the verification effect at horizon 50 minus the effect at
+#   horizon 2 -- the test of whether the effect itself grows.
+# - team size is fixed at 4 and rotates which agent takes each step;
+#   execution is sequential, so this studies dependency, not speedup.
+# - the live run requires a passing calibration gate report:
+#     .venv/bin/python -m teamscale.calibrate \
+#       --out experiments/error-accumulation/calibration.json
+#     TEAMSCLAE_PROVIDER=anthropic \
+#     TEAMSCLAE_ANTHROPIC_CRED_CMD="..." \
+#       .venv/bin/python -m teamscale.config_experiment \
+#       experiments/error-accumulation/experiment.yaml \
+#       --calibration experiments/error-accumulation/calibration.json
+#   Then:
+#     .venv/bin/python -m teamscale.replay results/error-accumulation/<run-id>
+#     .venv/bin/python -m teamscale.analyze results/error-accumulation/<run-id>
+
+name: error-accumulation
+question: "How does the benefit of external verification change as error accumulation increases?"
+provider: anthropic
+model: claude-haiku-5-5
+family: error_accumulation
+difficulty: hard
+blind: true
+horizons: [2, 5, 10, 20, 50]
+strategies: [orchestrated, verified]
+seeds: [0, 1, 2, 3, 4]
+team_size: 4
+per_run_token_cap: 400000
+spend_cap_usd: 15.00
+workers: 4
+output_root: results
+analysis:
+  series: strategy
+  group_by: horizon
+  value: final_state_correct
+  x_scale: log2
+  x_label: "chain length (steps, log2)"
+  caveats_position: top
+  contrast:
+    positive: verified
+    negative: orchestrated
+    across: [2, 50]
+  steps:
+    file: steps.csv
+    index: step_index
+    value: state_correct
+caveats:
+  - "The verifier is the ground-truth check itself (a perfect verifier). A noisy or learned verifier is a different question, deliberately out of scope."
+  - "One model (claude-haiku-5-5), one task family (chained transformations, new in this phase). The comparison that matters is within this experiment -- the verification effect as a function of horizon -- not levels against Phase A."
+  - "Steps execute sequentially within every run; team size (fixed at 4) rotates which agent takes each step. This experiment studies dependency, not parallel speedup."
+  - "Five seeds per cell: per-horizon intervals are wide by construction. The citable numbers are the pooled and across-horizon contrasts."
+  - "Survival probability is P(state correct after step k) against the generator's ground truth; local correctness (the step applied correctly to the input actually received) is recorded separately in steps.csv, so inherited errors are distinguishable from new ones."

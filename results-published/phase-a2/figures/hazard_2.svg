@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="380" font-family="sans-serif" font-size="11">
+<text x="56" y="22" font-weight="bold">hazard by step -- horizon=2</text>
+<rect x="56" y="40" width="492" height="294" fill="none" stroke="#999"/>
+<line x1="56" y1="334" x2="548" y2="334" stroke="#ddd"/>
+<text x="26" y="337">0.00</text>
+<line x1="56" y1="260" x2="548" y2="260" stroke="#ddd"/>
+<text x="26" y="264">0.25</text>
+<line x1="56" y1="187" x2="548" y2="187" stroke="#ddd"/>
+<text x="26" y="190">0.50</text>
+<line x1="56" y1="114" x2="548" y2="114" stroke="#ddd"/>
+<text x="26" y="116">0.75</text>
+<line x1="56" y1="40" x2="548" y2="40" stroke="#ddd"/>
+<text x="26" y="43">1.00</text>
+<text x="52" y="350">1</text>
+<text x="544" y="350">2</text>
+<text x="56" y="366">step -&gt;</text>
+<line x1="56.0" y1="334.0" x2="56.0" y2="334.0" stroke="#1b9e77" stroke-width="1"/>
+<circle cx="56.0" cy="334.0" r="2.5" fill="#1b9e77"/>
+<line x1="548.0" y1="334.0" x2="548.0" y2="334.0" stroke="#1b9e77" stroke-width="1"/>
+<circle cx="548.0" cy="334.0" r="2.5" fill="#1b9e77"/>
+<polyline points="56.0,334.0 548.0,334.0" fill="none" stroke="#1b9e77" stroke-width="2"/>
+<text x="556" y="337" fill="#1b9e77">orchestrated</text>
+<line x1="56.0" y1="334.0" x2="56.0" y2="334.0" stroke="#1a56db" stroke-width="1"/>
+<circle cx="56.0" cy="334.0" r="2.5" fill="#1a56db"/>
+<line x1="548.0" y1="334.0" x2="548.0" y2="334.0" stroke="#1a56db" stroke-width="1"/>
+<circle cx="548.0" cy="334.0" r="2.5" fill="#1a56db"/>
+<polyline points="56.0,334.0 548.0,334.0" fill="none" stroke="#1a56db" stroke-width="2"/>
+<text x="556" y="337" fill="#1a56db">verified</text>
+</svg>

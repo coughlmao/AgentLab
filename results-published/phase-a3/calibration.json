@@ -1,0 +1,196 @@
+{
+ "version": "model-calibration-1",
+ "generator_version": "ladder-gen-1",
+ "family": "model_calibrated_generation",
+ "provider": "anthropic",
+ "model": "claude-haiku-5-5",
+ "control_law": "bisection over the ladder, error = signed distance of the batch Wilson CI from the band",
+ "batch_size": 200,
+ "max_settings_per_band": 6,
+ "validation_n": 500,
+ "bands": [
+  {
+   "target": 0.1,
+   "tolerance": 0.03,
+   "band": [
+    0.07,
+    0.13
+   ],
+   "label": "t10",
+   "status": "declared_failure",
+   "failure_class": "no_stable_setting",
+   "calibration_version": null,
+   "setting": null,
+   "trace": [
+    {
+     "iteration": 1,
+     "setting_index": 4,
+     "setting": "plain-s32-k2",
+     "n": 200,
+     "failures": 4,
+     "errors": 0,
+     "rate": 0.02,
+     "ci_lo": 0.007804,
+     "ci_hi": 0.050287,
+     "error": -0.019713,
+     "adjustment": "move up: search [5, 9]"
+    },
+    {
+     "iteration": 2,
+     "setting_index": 7,
+     "setting": "inter-s32-k4",
+     "n": 200,
+     "failures": 6,
+     "errors": 0,
+     "rate": 0.03,
+     "ci_lo": 0.01382,
+     "ci_hi": 0.063894,
+     "error": -0.006106,
+     "adjustment": "move up: search [8, 9]"
+    },
+    {
+     "iteration": 3,
+     "setting_index": 8,
+     "setting": "inter-s64-k4",
+     "n": 200,
+     "failures": 68,
+     "errors": 0,
+     "rate": 0.34,
+     "ci_lo": 0.277915,
+     "ci_hi": 0.408115,
+     "error": 0.147915,
+     "adjustment": "move down: ladder exhausted"
+    }
+   ],
+   "efficiency": {
+    "probes": 600,
+    "api_calls": 1170,
+    "tokens_in": 2492285,
+    "tokens_out": 1347358,
+    "cost_usd": 0.922913,
+    "wall_clock_s": 1377.969,
+    "iterations": 3
+   },
+   "validation": null,
+   "validation_efficiency": null
+  },
+  {
+   "target": 0.05,
+   "tolerance": 0.02,
+   "band": [
+    0.03,
+    0.07
+   ],
+   "label": "t5",
+   "status": "converged",
+   "failure_class": null,
+   "calibration_version": "band-t5@ladder-gen-1:inter-s32-k4",
+   "setting": {
+    "name": "inter-s32-k4",
+    "state_len": 32,
+    "composite_k": 4,
+    "interacting": true
+   },
+   "trace": [
+    {
+     "iteration": 1,
+     "setting_index": 4,
+     "setting": "plain-s32-k2",
+     "n": 200,
+     "failures": 4,
+     "errors": 0,
+     "rate": 0.02,
+     "ci_lo": 0.007804,
+     "ci_hi": 0.050287,
+     "error": 0.0,
+     "adjustment": "move up: search [5, 9]"
+    },
+    {
+     "iteration": 2,
+     "setting_index": 7,
+     "setting": "inter-s32-k4",
+     "n": 200,
+     "failures": 9,
+     "errors": 0,
+     "rate": 0.045,
+     "ci_lo": 0.023853,
+     "ci_hi": 0.083297,
+     "error": 0.0,
+     "adjustment": "converged: freeze this setting"
+    }
+   ],
+   "efficiency": {
+    "probes": 400,
+    "api_calls": 801,
+    "tokens_in": 1455669,
+    "tokens_out": 620018,
+    "cost_usd": 0.455589,
+    "wall_clock_s": 715.668,
+    "iterations": 2
+   },
+   "validation": {
+    "status": "completed",
+    "n": 500,
+    "failures": 25,
+    "errors": 0,
+    "rate": 0.05,
+    "ci_lo": 0.034094,
+    "ci_hi": 0.072768,
+    "point_estimate_in_band": true,
+    "ci_intersects_band": true,
+    "pass": true,
+    "held_out_seed_base": 910000
+   },
+   "validation_efficiency": {
+    "probes": 500,
+    "api_calls": 1000,
+    "tokens_in": 2085942,
+    "tokens_out": 993840,
+    "cost_usd": 0.705515,
+    "wall_clock_s": 1042.454
+   }
+  }
+ ],
+ "monotonicity": {
+  "per_setting": [
+   {
+    "setting_index": 4,
+    "setting": "plain-s32-k2",
+    "n": 400,
+    "failures": 8,
+    "rate": 0.02,
+    "ci_lo": 0.010168,
+    "ci_hi": 0.038963
+   },
+   {
+    "setting_index": 7,
+    "setting": "inter-s32-k4",
+    "n": 900,
+    "failures": 40,
+    "rate": 0.044444,
+    "ci_lo": 0.032807,
+    "ci_hi": 0.059954
+   },
+   {
+    "setting_index": 8,
+    "setting": "inter-s64-k4",
+    "n": 200,
+    "failures": 68,
+    "rate": 0.34,
+    "ci_lo": 0.277915,
+    "ci_hi": 0.408115
+   }
+  ],
+  "inversions": [],
+  "verdict": "monotone non-decreasing"
+ },
+ "totals": {
+  "probes": 1500,
+  "api_calls": 2971,
+  "tokens_in": 6033896,
+  "tokens_out": 2961216,
+  "cost_usd": 2.084017,
+  "wall_clock_s": 3136.094
+ },
+ "issues": []
+}

@@ -1,6 +1,12 @@
 .venv/
 __pycache__/
 *.pyc
+results/
 experiments/traces/
 experiments/sandboxes/
+experiments/real/sandboxes/
+experiments/real/pilot-anthropic/
+experiments/real/smoke-a/
+experiments/real/smoke-b/
+experiments/real/smoke-hard/
 .pytest_cache/

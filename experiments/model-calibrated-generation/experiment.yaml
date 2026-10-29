@@ -1,0 +1,60 @@
+# AgentLab Phase A-3 experiment.
+#
+# The one question: can the generator produce task families whose
+# measured first-attempt failure rate on the target model lands
+# inside a requested band -- and stay there on held-out seeds?
+#
+# The pre-registered design (closed-loop controller, efficiency as a
+# first-class result, falsification conditions, frozen tolerances)
+# lives in DESIGN.md next to this file. In brief:
+# - family: model_calibrated_generation -- standalone ladder steps
+#   (teamscale.ladder), probed blind, single agent, single attempt,
+#   no check feedback; failure = first-submission state incorrect
+#   under the generator's ground-truth grading.
+# - the controller bisects the difficulty ladder per band; its error
+#   signal is the signed distance of a batch's Wilson CI from the
+#   band. Max 6 settings probed per band, batches of 200.
+# - convergence freezes a setting as a named calibration; the band
+#   is then validated on 500 held-out steps (seeds never used during
+#   the search) against the pre-registered criterion: point estimate
+#   inside the tolerance AND Wilson CI intersecting the band.
+# - bands demonstrated: 10% +/- 3% and 5% +/- 2%. The 2% and 20%
+#   bands are NOT claimed by this phase.
+# - this experiment does NOT rerun the error-accumulation study;
+#   it demonstrates that calibration works, which is what makes the
+#   accumulation question identifiable for the successor phase.
+#
+# Run sequence (release gate, as in Phase A-2):
+#   .venv/bin/python -m pytest
+#   .venv/bin/python -m teamscale.config_experiment \
+#     experiments/model-calibrated-generation/experiment.yaml --fake
+#   git tag agentlab-a3-v1            # after the build commit
+#   TEAMSCLAE_PROVIDER=anthropic \
+#   TEAMSCLAE_ANTHROPIC_CRED_CMD="..." \
+#     .venv/bin/python -m teamscale.config_experiment \
+#     experiments/model-calibrated-generation/experiment.yaml
+#   .venv/bin/python -m teamscale.replay \
+#     results/model-calibrated-generation/<run-id>
+
+name: model-calibrated-generation
+question: "Can the generator produce task families whose measured first-attempt failure rate on the target model lands inside a requested band, and stay there on held-out seeds?"
+provider: anthropic
+model: claude-haiku-5-5
+family: model_calibrated_generation
+difficulty: hard
+blind: true
+band_targets: [0.10, 0.05]
+band_tolerances: [0.03, 0.02]
+batch_size: 200
+max_settings: 6
+validation_n: 500
+per_probe_token_cap: 12000
+spend_cap_usd: 10.00
+workers: 4
+output_root: results
+caveats:
+  - "One model (claude-haiku-5-5), one task family (standalone transformation steps from the chained family's template set, extended by the Phase A-3 ladder). Calibrated bands are properties of this model and this family; portability to another model is a different question, deliberately out of scope."
+  - "Bands demonstrated are 10% +/- 3% and 5% +/- 2% only. The 2% and 20% bands from the general proposal are not claimed: they may sit outside the ladder's range, and claiming only what the demonstration covers is the point of the exercise."
+  - "The control law is bisection over a fixed ladder with Wilson-CI error signals. Calibration efficiency numbers describe this controller; a different control law could be cheaper, and the efficiency results are reported so that comparison is possible."
+  - "Failure is first-attempt, blind, single-agent failure on standalone steps -- not chain failure, not team failure. This phase calibrates the step distribution; what calibrated steps do inside chains and teams is the successor phase's question."
+  - "Probes whose outcome was an infrastructure error (API/transport) are excluded from every failure rate and counted separately in the bundle; they are not model failures."

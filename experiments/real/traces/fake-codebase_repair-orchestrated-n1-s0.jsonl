@@ -1,0 +1,58 @@
+{"event": "run_start", "run_id": "fake-codebase_repair-orchestrated-n1-s0", "family": "codebase_repair", "strategy": "orchestrated", "team_size": 1, "seed": 0, "backend": "fake", "note": "agents execute sequentially; this measures organization, not parallel wall-clock"}
+{"event": "assign", "subtask": "rr-00", "agent": 0, "file": "scoring.py"}
+{"event": "assign", "subtask": "rr-01", "agent": 0, "file": "ledger.py"}
+{"event": "assign", "subtask": "rr-02", "agent": 0, "file": "pricing.py"}
+{"event": "assign", "subtask": "rr-03", "agent": 0, "file": "billing.py"}
+{"event": "assign", "subtask": "rr-04", "agent": 0, "file": "metrics.py"}
+{"event": "assign", "subtask": "rr-05", "agent": 0, "file": "payroll.py"}
+{"event": "assign", "subtask": "rr-06", "agent": 0, "file": "loyalty.py"}
+{"event": "assign", "subtask": "rr-07", "agent": 0, "file": "shipping.py"}
+{"event": "tool_call", "agent": 0, "subtask": "rr-00", "tool": "read_file", "file": "scoring.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-00", "tokens_in": 801, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-00", "tool": "write_file", "file": "scoring.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-00", "tokens_in": 637, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-00", "tool": "run_check", "file": "check_scoring.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-00", "tokens_in": 450, "tokens_out": 90}
+{"event": "tool_call", "agent": 0, "subtask": "rr-01", "tool": "read_file", "file": "ledger.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-01", "tokens_in": 802, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-01", "tool": "write_file", "file": "ledger.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-01", "tokens_in": 627, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-01", "tool": "run_check", "file": "check_ledger.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-01", "tokens_in": 450, "tokens_out": 90}
+{"event": "tool_call", "agent": 0, "subtask": "rr-02", "tool": "read_file", "file": "pricing.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-02", "tokens_in": 823, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-02", "tool": "write_file", "file": "pricing.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-02", "tokens_in": 649, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-02", "tool": "run_check", "file": "check_pricing.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-02", "tokens_in": 450, "tokens_out": 90}
+{"event": "tool_call", "agent": 0, "subtask": "rr-03", "tool": "read_file", "file": "billing.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-03", "tokens_in": 792, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-03", "tool": "write_file", "file": "billing.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-03", "tokens_in": 636, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-03", "tool": "run_check", "file": "check_billing.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-03", "tokens_in": 450, "tokens_out": 90}
+{"event": "tool_call", "agent": 0, "subtask": "rr-04", "tool": "read_file", "file": "metrics.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-04", "tokens_in": 787, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-04", "tool": "write_file", "file": "metrics.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-04", "tokens_in": 618, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-04", "tool": "run_check", "file": "check_metrics.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-04", "tokens_in": 450, "tokens_out": 90}
+{"event": "tool_call", "agent": 0, "subtask": "rr-05", "tool": "read_file", "file": "payroll.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-05", "tokens_in": 784, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-05", "tool": "write_file", "file": "payroll.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-05", "tokens_in": 633, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-05", "tool": "run_check", "file": "check_payroll.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-05", "tokens_in": 450, "tokens_out": 90}
+{"event": "tool_call", "agent": 0, "subtask": "rr-06", "tool": "read_file", "file": "loyalty.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-06", "tokens_in": 783, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-06", "tool": "write_file", "file": "loyalty.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-06", "tokens_in": 636, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-06", "tool": "run_check", "file": "check_loyalty.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-06", "tokens_in": 450, "tokens_out": 90}
+{"event": "tool_call", "agent": 0, "subtask": "rr-07", "tool": "read_file", "file": "shipping.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-07", "tokens_in": 789, "tokens_out": 150}
+{"event": "tool_call", "agent": 0, "subtask": "rr-07", "tool": "write_file", "file": "shipping.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-07", "tokens_in": 629, "tokens_out": 320}
+{"event": "tool_call", "agent": 0, "subtask": "rr-07", "tool": "run_check", "file": "check_shipping.py"}
+{"event": "model_call", "agent": 0, "subtask": "rr-07", "tokens_in": 450, "tokens_out": 90}
+{"event": "run_end", "run_id": "fake-codebase_repair-orchestrated-n1-s0", "success": false, "fraction_correct": 0.625, "total_tokens": 19506, "cost_usd": 0.0, "wall_time_s": 1.335}

@@ -1,0 +1,244 @@
+{
+ "blind": true,
+ "bootstrap": {
+  "method": "percentile bootstrap over runs within each strategy x team-size cell",
+  "resamples": 5000,
+  "seed": "crc32(metrics.csv) ^ 0x5EED (deterministic)"
+ },
+ "cells": [
+  {
+   "ci95": [
+    0.875,
+    0.95
+   ],
+   "mean_cost_usd": 0.005095,
+   "mean_fraction_correct": 0.9,
+   "mean_tokens": 34147.0,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "independent",
+   "team_size": 1
+  },
+  {
+   "ci95": [
+    0.9,
+    1.0
+   ],
+   "mean_cost_usd": 0.005053,
+   "mean_fraction_correct": 0.95,
+   "mean_tokens": 34005.2,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "independent",
+   "team_size": 2
+  },
+  {
+   "ci95": [
+    0.875,
+    0.95
+   ],
+   "mean_cost_usd": 0.005058,
+   "mean_fraction_correct": 0.9,
+   "mean_tokens": 34041.2,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "independent",
+   "team_size": 4
+  },
+  {
+   "ci95": [
+    0.875,
+    0.95
+   ],
+   "mean_cost_usd": 0.005142,
+   "mean_fraction_correct": 0.9,
+   "mean_tokens": 34297.0,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "independent",
+   "team_size": 8
+  },
+  {
+   "ci95": [
+    0.875,
+    0.95
+   ],
+   "mean_cost_usd": 0.00549,
+   "mean_fraction_correct": 0.9,
+   "mean_tokens": 38237.0,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "orchestrated",
+   "team_size": 1
+  },
+  {
+   "ci95": [
+    0.875,
+    0.95
+   ],
+   "mean_cost_usd": 0.00554,
+   "mean_fraction_correct": 0.9,
+   "mean_tokens": 38414.0,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "orchestrated",
+   "team_size": 2
+  },
+  {
+   "ci95": [
+    0.875,
+    0.95
+   ],
+   "mean_cost_usd": 0.005553,
+   "mean_fraction_correct": 0.9,
+   "mean_tokens": 38414.8,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "orchestrated",
+   "team_size": 4
+  },
+  {
+   "ci95": [
+    0.875,
+    0.95
+   ],
+   "mean_cost_usd": 0.00555,
+   "mean_fraction_correct": 0.9,
+   "mean_tokens": 38387.2,
+   "n": 5,
+   "retries_total": 0,
+   "strategy": "orchestrated",
+   "team_size": 8
+  },
+  {
+   "ci95": [
+    0.925,
+    1.0
+   ],
+   "mean_cost_usd": 0.006352,
+   "mean_fraction_correct": 0.975,
+   "mean_tokens": 43884.6,
+   "n": 5,
+   "retries_total": 4,
+   "strategy": "verified",
+   "team_size": 1
+  },
+  {
+   "ci95": [
+    0.925,
+    1.0
+   ],
+   "mean_cost_usd": 0.006475,
+   "mean_fraction_correct": 0.975,
+   "mean_tokens": 44461.2,
+   "n": 5,
+   "retries_total": 4,
+   "strategy": "verified",
+   "team_size": 2
+  },
+  {
+   "ci95": [
+    0.925,
+    1.0
+   ],
+   "mean_cost_usd": 0.006483,
+   "mean_fraction_correct": 0.975,
+   "mean_tokens": 44487.8,
+   "n": 5,
+   "retries_total": 4,
+   "strategy": "verified",
+   "team_size": 4
+  },
+  {
+   "ci95": [
+    0.925,
+    1.0
+   ],
+   "mean_cost_usd": 0.006414,
+   "mean_fraction_correct": 0.975,
+   "mean_tokens": 44314.2,
+   "n": 5,
+   "retries_total": 4,
+   "strategy": "verified",
+   "team_size": 8
+  }
+ ],
+ "cost": {
+  "by_strategy": {
+   "independent": {
+    "cost_per_correct_subtask_usd": 0.000697,
+    "cost_per_run_usd": 0.005087,
+    "runs": 20,
+    "subtasks_correct": 146,
+    "total_cost_usd": 0.101739
+   },
+   "orchestrated": {
+    "cost_per_correct_subtask_usd": 0.000768,
+    "cost_per_run_usd": 0.005533,
+    "runs": 20,
+    "subtasks_correct": 144,
+    "total_cost_usd": 0.110664
+   },
+   "verified": {
+    "cost_per_correct_subtask_usd": 0.000825,
+    "cost_per_run_usd": 0.006431,
+    "runs": 20,
+    "subtasks_correct": 156,
+    "total_cost_usd": 0.128623
+   }
+  },
+  "cost_per_run_usd": 0.005684,
+  "source": "summary.json (run ledger)",
+  "total_cost_usd": 0.341026
+ },
+ "difficulty": "hard",
+ "experiment": "verification-question",
+ "model": "claude-haiku-5-5",
+ "n_runs": 60,
+ "primary_contrast": {
+  "by_size": {
+   "1": {
+    "ci95": [
+     0.0,
+     0.125
+    ],
+    "difference": 0.075
+   },
+   "2": {
+    "ci95": [
+     0.0,
+     0.125
+    ],
+    "difference": 0.075
+   },
+   "4": {
+    "ci95": [
+     0.0,
+     0.125
+    ],
+    "difference": 0.075
+   },
+   "8": {
+    "ci95": [
+     0.0,
+     0.125
+    ],
+    "difference": 0.075
+   }
+  },
+  "overall": {
+   "ci95": [
+    0.0437,
+    0.1062
+   ],
+   "difference": 0.075
+  },
+  "strategies": [
+   "verified",
+   "orchestrated"
+  ]
+ },
+ "provider": "anthropic",
+ "question": "When does external verification improve team performance?",
+ "run_id": "20261029T030319Z-849d8f77"
+}

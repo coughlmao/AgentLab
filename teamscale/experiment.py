@@ -1,11 +1,17 @@
 """Experiment grid CLI.
 
     python -m teamscale.experiment [--seeds 3] [--out experiments] [--no-audit]
+    python -m teamscale.experiment <experiment.yaml> [--fake]
 
-Runs team_size x strategy x family at a fixed per-family budget, writes
-results.csv / results.json / summary.json, prints the scaling table, the
-bend points, the best strategy per family under the budget, and an
-evaluation-artifact audit on a chosen configuration.
+With no YAML argument, runs the simulated grid: team_size x strategy x
+family at a fixed per-family budget, writes results.csv / results.json /
+summary.json, prints the scaling table, the bend points, the best
+strategy per family under the budget, and an evaluation-artifact audit
+on a chosen configuration.
+
+With a YAML argument, dispatches to the config-driven experiment runner
+(teamscale.config_experiment): one config file describes a real-backend
+experiment and produces an immutable run directory under results/.
 """
 from __future__ import annotations
 
@@ -13,6 +19,7 @@ import argparse
 import csv
 import json
 import statistics
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -131,6 +138,14 @@ def print_report(summary):
 
 
 def main(argv=None):
+    argv = list(argv) if argv is not None else None
+    # A YAML argument means the config-driven experiment runner
+    # (teamscale.config_experiment): one file describes the whole
+    # experiment and produces an immutable, manifest-first run directory.
+    effective = argv if argv is not None else sys.argv[1:]
+    if any(a.endswith((".yaml", ".yml")) for a in effective):
+        from .config_experiment import main as _config_main
+        return _config_main(effective)
     ap = argparse.ArgumentParser(prog="teamscale.experiment")
     ap.add_argument("--seeds", type=int, default=5, help="seeds per cell (0..n-1)")
     ap.add_argument("--out", default="experiments")

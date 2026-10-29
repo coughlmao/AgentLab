@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="380" font-family="sans-serif" font-size="11">
+<text x="56" y="22" font-weight="bold">mean cost per run (USD), by team size and strategy</text>
+<rect x="56" y="40" width="492" height="294" fill="none" stroke="#999"/>
+<line x1="56" y1="334" x2="548" y2="334" stroke="#ddd"/>
+<text x="26" y="337">0.000</text>
+<line x1="56" y1="260" x2="548" y2="260" stroke="#ddd"/>
+<text x="26" y="264">0.002</text>
+<line x1="56" y1="187" x2="548" y2="187" stroke="#ddd"/>
+<text x="26" y="190">0.004</text>
+<line x1="56" y1="114" x2="548" y2="114" stroke="#ddd"/>
+<text x="26" y="116">0.006</text>
+<line x1="56" y1="40" x2="548" y2="40" stroke="#ddd"/>
+<text x="26" y="43">0.007</text>
+<rect x="71.4" y="133.1" width="27.7" height="200.9" fill="#d95f02"/>
+<text x="71.4" y="130.1" font-size="9">0.0051</text>
+<rect x="102.1" y="117.5" width="27.7" height="216.5" fill="#1b9e77"/>
+<text x="102.1" y="114.5" font-size="9">0.0055</text>
+<rect x="132.9" y="83.5" width="27.7" height="250.5" fill="#1a56db"/>
+<text x="132.9" y="80.5" font-size="9">0.0064</text>
+<text x="110" y="350">n=1</text>
+<rect x="194.4" y="134.7" width="27.7" height="199.3" fill="#d95f02"/>
+<text x="194.4" y="131.7" font-size="9">0.0051</text>
+<rect x="225.1" y="115.5" width="27.7" height="218.5" fill="#1b9e77"/>
+<text x="225.1" y="112.5" font-size="9">0.0055</text>
+<rect x="255.9" y="78.6" width="27.7" height="255.4" fill="#1a56db"/>
+<text x="255.9" y="75.6" font-size="9">0.0065</text>
+<text x="232" y="350">n=2</text>
+<rect x="317.4" y="134.5" width="27.7" height="199.5" fill="#d95f02"/>
+<text x="317.4" y="131.5" font-size="9">0.0051</text>
+<rect x="348.1" y="115.0" width="27.7" height="219.0" fill="#1b9e77"/>
+<text x="348.1" y="112.0" font-size="9">0.0056</text>
+<rect x="378.9" y="78.3" width="27.7" height="255.7" fill="#1a56db"/>
+<text x="378.9" y="75.3" font-size="9">0.0065</text>
+<text x="356" y="350">n=4</text>
+<rect x="440.4" y="131.2" width="27.7" height="202.8" fill="#d95f02"/>
+<text x="440.4" y="128.2" font-size="9">0.0051</text>
+<rect x="471.1" y="115.1" width="27.7" height="218.9" fill="#1b9e77"/>
+<text x="471.1" y="112.1" font-size="9">0.0056</text>
+<rect x="501.9" y="81.0" width="27.7" height="253.0" fill="#1a56db"/>
+<text x="501.9" y="78.0" font-size="9">0.0064</text>
+<text x="478" y="350">n=8</text>
+<rect x="560" y="37" width="10" height="10" fill="#d95f02"/>
+<text x="574" y="46" fill="#d95f02">independent</text>
+<rect x="560" y="52" width="10" height="10" fill="#1b9e77"/>
+<text x="574" y="61" fill="#1b9e77">orchestrated</text>
+<rect x="560" y="67" width="10" height="10" fill="#1a56db"/>
+<text x="574" y="76" fill="#1a56db">verified</text>
+</svg>

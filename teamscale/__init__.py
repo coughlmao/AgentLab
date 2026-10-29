@@ -9,6 +9,6 @@ from .metrics import RunMetrics
 from .strategies import STRATEGIES
 from .tasks import FAMILIES, make_task
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = ["RunConfig", "RunResult", "run_experiment", "RunMetrics",
            "STRATEGIES", "FAMILIES", "make_task"]

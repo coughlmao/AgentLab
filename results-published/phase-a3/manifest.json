@@ -1,0 +1,99 @@
+{
+ "experiment": "model-calibrated-generation",
+ "question": "Can the generator produce task families whose measured first-attempt failure rate on the target model lands inside a requested band, and stay there on held-out seeds?",
+ "run_id": "20261029T071722Z-b4163d9b",
+ "config": {
+  "name": "model-calibrated-generation",
+  "question": "Can the generator produce task families whose measured first-attempt failure rate on the target model lands inside a requested band, and stay there on held-out seeds?",
+  "provider": "anthropic",
+  "model": "claude-haiku-5-5",
+  "family": "model_calibrated_generation",
+  "difficulty": "hard",
+  "blind": true,
+  "band_targets": [
+   0.1,
+   0.05
+  ],
+  "band_tolerances": [
+   0.03,
+   0.02
+  ],
+  "batch_size": 200,
+  "max_settings": 6,
+  "validation_n": 500,
+  "per_probe_token_cap": 12000,
+  "spend_cap_usd": 10.0,
+  "workers": 4,
+  "output_root": "results",
+  "caveats": [
+   "One model (claude-haiku-5-5), one task family (standalone transformation steps from the chained family's template set, extended by the Phase A-3 ladder). Calibrated bands are properties of this model and this family; portability to another model is a different question, deliberately out of scope.",
+   "Bands demonstrated are 10% +/- 3% and 5% +/- 2% only. The 2% and 20% bands from the general proposal are not claimed: they may sit outside the ladder's range, and claiming only what the demonstration covers is the point of the exercise.",
+   "The control law is bisection over a fixed ladder with Wilson-CI error signals. Calibration efficiency numbers describe this controller; a different control law could be cheaper, and the efficiency results are reported so that comparison is possible.",
+   "Failure is first-attempt, blind, single-agent failure on standalone steps -- not chain failure, not team failure. This phase calibrates the step distribution; what calibrated steps do inside chains and teams is the successor phase's question.",
+   "Probes whose outcome was an infrastructure error (API/transport) are excluded from every failure rate and counted separately in the bundle; they are not model failures."
+  ]
+ },
+ "config_sha256": "b4163d9ba7ba3bb0718ea922af3b5f39a14b83e73ea80a0cfe4290b333b0a41b",
+ "config_source": "experiments/model-calibrated-generation/experiment.yaml",
+ "git": {
+  "commit": "a1ad86ef6d5a8c8d0871db728d920ca98d0aa43a",
+  "dirty": false
+ },
+ "code_version": "0.2.0",
+ "provider": "anthropic",
+ "requested_provider": "anthropic",
+ "model": "claude-haiku-5-5",
+ "pricing": {
+  "model": "claude-haiku-5-5",
+  "input_per_1m_usd": 0.1,
+  "output_per_1m_usd": 0.5
+ },
+ "difficulty": "hard",
+ "blind": true,
+ "family": "model_calibrated_generation",
+ "generator_version": "ladder-gen-1",
+ "prompt_hash": "4d41d5abf453ca836ca932839c57b699ba744e206900e9f077c3ec0086a6aac7",
+ "calibration_version": "model-calibration-1",
+ "calibration": null,
+ "replay_version": "3",
+ "analysis_version": "2",
+ "analysis": {
+  "kind": "model_calibration",
+  "calibration_version": "model-calibration-1",
+  "input": "probes.csv"
+ },
+ "caveats": [
+  "One model (claude-haiku-5-5), one task family (standalone transformation steps from the chained family's template set, extended by the Phase A-3 ladder). Calibrated bands are properties of this model and this family; portability to another model is a different question, deliberately out of scope.",
+  "Bands demonstrated are 10% +/- 3% and 5% +/- 2% only. The 2% and 20% bands from the general proposal are not claimed: they may sit outside the ladder's range, and claiming only what the demonstration covers is the point of the exercise.",
+  "The control law is bisection over a fixed ladder with Wilson-CI error signals. Calibration efficiency numbers describe this controller; a different control law could be cheaper, and the efficiency results are reported so that comparison is possible.",
+  "Failure is first-attempt, blind, single-agent failure on standalone steps -- not chain failure, not team failure. This phase calibrates the step distribution; what calibrated steps do inside chains and teams is the successor phase's question.",
+  "Probes whose outcome was an infrastructure error (API/transport) are excluded from every failure rate and counted separately in the bundle; they are not model failures."
+ ],
+ "grid": {
+  "family": "model_calibrated_generation",
+  "bands": [
+   {
+    "target": 0.1,
+    "tolerance": 0.03
+   },
+   {
+    "target": 0.05,
+    "tolerance": 0.02
+   }
+  ],
+  "batch_size": 200,
+  "max_settings": 6,
+  "validation_n": 500,
+  "per_probe_token_cap": 12000
+ },
+ "n_runs_planned": 3400,
+ "per_run_token_cap": 400000,
+ "spend_cap_usd": 10.0,
+ "workers": 4,
+ "started_at": "2026-10-29T07:17:22.704595+00:00",
+ "host": {
+  "system": "Linux",
+  "machine": "x86_64",
+  "python": "3.12.3"
+ }
+}

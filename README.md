@@ -1,196 +1,309 @@
-# optimized agent team scaling
+# AgentLab
 
-A small, self-contained lab for studying how **teams of agents** scale: what
-happens to success, cost, and coordination as the number of agents, the
-compute budget, and the length of the task grow — and how much of the measured
-result is the work, and how much is an artifact of the evaluation.
+**A reproducible laboratory for studying the scaling behavior of LLM
+agent organizations.**
 
-**Honest scope, up front:** the agents in v1 are *simulated*. An attempt's
-outcome comes from an explicit probability model (subtask difficulty, the
-agent's accumulated context load, dependency health, horizon depth) driven by
-a seeded RNG, so the full grid runs offline in about 25 seconds with no API
-keys and every number is reproducible.
+AgentLab is a reproducible laboratory for empirical research on
+multi-agent LLM systems. Rather than providing new agent
+architectures, it provides the infrastructure to ask and answer
+controlled research questions: reproducible experiments, calibration
+gates, deterministic replay, and auditable analyses. Version 1.0
+demonstrates this methodology through three empirical studies on
+Claude Haiku 5.5.
 
-![agent team scaling curves](experiments/scaling_curves.svg) The science here is in the harness,
-the coordination strategies, the sandboxed verification, and the evaluation
-audits — not in any claim about real LLM behaviour. An `AgentBackend`
-protocol (`teamscale/agents.py`) is the seam where a real LLM backend plugs
-in later; `LLMBackend` is a documented stub that raises `NotImplementedError`.
+```
+Experiment config
+        │
+        ▼
+ Task generator
+        │
+        ▼
+ Agent execution
+        │
+        ▼
+ Verification
+        │
+        ▼
+ Replay
+        │
+        ▼
+ Analysis
+```
 
-## the questions this lab asks
+Every experiment is one config file that states the whole design up
+front; every result is a sealed, replayable bundle another
+researcher can regenerate and audit.
 
-Teams of agents are getting bigger, but bigger is not obviously better: every
-added agent costs tokens, coordination, and new ways to fail. This lab exists
-to answer, with experiments rather than intuition:
+## Why AgentLab?
 
-1. **Scaling** — as a team grows from 1 to 32 agents, how do success, cost,
-   and wall time actually change? The answer turns out to depend on the
-   coordination strategy and on whether the task decomposes at all.
-2. **The bend** — where does the curve bend: at what team size does one more
-   agent stop paying for itself?
-3. **Coordination** — how much work do uncoordinated teams duplicate, and
-   does paying for verification earn its cost back?
-4. **Budgets** — given a fixed compute budget, how should it be allocated
-   across a team and its subtasks to finish fastest and most reliably?
-5. **Trust** — how much of any measured result is the work, and how much is
-   an artifact of how it was evaluated?
+Existing agent benchmarks often assume task difficulty rather than
+measuring it, making scaling conclusions sensitive to hidden
+evaluation artifacts. AgentLab treats benchmark design, calibration,
+replay, and analysis as first-class research objects.
 
-## what's inside
+## Engineering invariants
+
+Experiments are only as trustworthy as the infrastructure that
+produces them, so the platform is held to four invariants
+([`ENGINEERING.md`](ENGINEERING.md)):
+
+1. **Generator determinism** — a generated task is a pure function
+   of (seed, generator_version). Nothing else: no hidden randomness,
+   no timestamps, no mutable templates.
+2. **Immutable artifacts** — every run directory is write-once and
+   sealed with `hashes.json`; if anything changes, the seal breaks
+   and replay refuses to trust it.
+3. **First-class provenance** — every bundle's manifest answers
+   "exactly what generated me?" on its own: model, prompt hash,
+   generator / calibration / replay / analysis versions, git commit
+   and dirty flag, pricing.
+4. **Analysis purity** — the analysis consumes only recorded
+   metrics; contrasts and axes are declared in the experiment
+   config, never hardcoded, so the same machinery serves every
+   experiment.
+
+Releases follow a gate discipline: engineering checklist →
+calibration gate → tagged release → clean tree → one frozen run →
+replay → analysis. Code does not change during a run; an issue found
+mid-run is documented and fixed afterward, under a new version.
+
+## The three methodological contributions
+
+### 1. Artifact-resistant evaluation
+
+An experiment can measure its own setup instead of the phenomenon it
+claims to study, and the failure mode is silent: the numbers look
+clean. AgentLab's first phase began with exactly that failure. In
+the initial real pilot, every configuration scored a perfect
+fraction correct — independent, orchestrated, and verified, at
+every team size. The experiment had saturated and could not answer
+its own question: each agent carried a check tool inside its
+attempt, self-verified until the check passed, and strategy-level
+verification never had a failure to catch. A setup that masks the
+effect it claims to measure is an evaluation artifact.
+
+Phase A removed the mask. Under **blind execution** — agents can
+read and write but cannot execute checks, so the external check is
+the only feedback in the system — external verification produced a
+real improvement over matched orchestration, and the effect was
+**flat across team size**: verification acts as per-subtask
+insurance, not as a scaling effect. Coordination alone bought no
+quality, only cost. The platform's artifact audits (lenient-vs-strict
+rescoring, a no-work baseline, seed sensitivity) exist so that this
+class of error is looked for, not stumbled into.
+
+### 2. Calibration gates and mechanistic benchmarking
+
+A scaling variable should change the mechanism, not just the amount
+of work. Phase A-2 tested a mechanism — **error accumulation**:
+under sequential dependency, an unrecovered error propagates, so
+verification's benefit should grow with chain length. The hypothesis
+was pre-registered with its falsification criterion before any data
+existed, and the experiment was gated: an offline **calibration
+gate** first had to show that step difficulty was statistically
+indistinguishable across chain positions, so a horizon effect could
+not be dismissed as "longer is simply harder." The gate did its job
+on the first attempt — it **rejected the first chain generator
+before any live run**, because its operations made defects less
+visible at later positions. Only after the generator was fixed and
+the gate passed did the experiment run.
+
+The run produced **no first-submission failures at any horizon**, in
+either strategy. Stated precisely: the intervention failed to
+induce the error regime required to identify the proposed
+mechanism. That is a different statement from "verification doesn't
+help" and from "the tasks were too easy" — difficulty was
+calibrated uniform across positions; what never occurred was the
+phenomenon under study.
+
+**The platform rejected its own hypothesis for the correct reason.**
+
+### 3. Model-calibrated benchmark generation
+
+Phase A-2's lesson generalizes: a benchmark's difficulty is
+typically an intuition asserted by its author, yet it silently
+decides whether the phenomenon under study exists at all. Phase A-3
+makes difficulty a **measured, controlled variable**. A closed-loop
+controller — setpoint: a requested first-attempt failure band;
+error signal: the probed rate's confidence interval; adjustment: a
+difficulty ladder of composite steps, state size, and interacting
+parts — calibrates a task family to the target model before the
+family is used to study anything.
+
+One requested band converged and **validated on held-out seeds**:
+when a generator supports a requested operating point, the
+controller finds it and the calibration transfers to data the search
+never touched. For another requested band, the verdict was about
+the generator, not the algorithm:
+
+**The calibration procedure correctly diagnosed that the current
+generator family cannot represent that operating point.**
+
+The ladder jumps across that band in a single rung, and no setting
+exists in between. The controller declared failure against its
+pre-registered criterion rather than widening the tolerance or
+interpolating an answer. The limitation is in the generator's
+resolution, not in the calibration algorithm — and the
+methodology's purpose is precisely to keep those two components
+distinguishable.
+
+## Results
+
+Summary artifacts for all three phases — summaries, analyses,
+manifests, calibration reports, figures — are published in
+[`results-published/`](results-published/). The caveats in each
+summary stand: one model, one task family per phase, a perfect
+(ground-truth) verifier, sequential execution within runs, and
+intervals that are wide by construction at five seeds per cell.
+
+- **Phase A — verification under blind execution.**
+  Verified 0.975 vs orchestrated 0.900 fraction correct; primary
+  contrast +0.075 [+0.044, +0.106], flat across team sizes 1–8;
+  coordination alone added cost, not quality. 60 runs, $0.34 total,
+  replay exact.
+  [Summary](results-published/phase-a/SUMMARY.md) ·
+  [figures](results-published/phase-a/figures/)
+- **Phase A-2 — error accumulation.**
+  Calibration gate rejected the first generator, then passed over
+  25,000 generated steps; the experiment found zero first-submission
+  failures in 870 steps across horizons 2–50, so the accumulation
+  mechanism was unidentifiable in that regime — not falsified, and
+  not an artifact: agents were blind, grading used first
+  submissions, and the bundle replays exactly. 50 runs, $0.47 total.
+  [Summary](results-published/phase-a2/SUMMARY.md) ·
+  [calibration](results-published/phase-a2/calibration.json) ·
+  [figures](results-published/phase-a2/figures/)
+- **Phase A-3 — model-calibrated generation.**
+  The 5% ± 2% band converged in 2 iterations ($0.46 of probing) and
+  validated on held-out seeds at 0.050 [0.034, 0.073]. For the 10%
+  band, the calibration procedure correctly diagnosed that the
+  current generator family cannot represent that operating point —
+  the ladder jumps from 3% to 34% across one rung boundary, and the
+  tolerance was left untouched. 1,500 probes, $2.08 total, replay
+  exact.
+  [Summary](results-published/phase-a3/SUMMARY.md) ·
+  [calibration](results-published/phase-a3/calibration.json)
+
+The full decision history — questions, alternatives considered and
+rejected, threats named in advance, outcomes, and a "What would have
+changed my mind?" section per experiment — is in
+[`RESEARCH_LOG.md`](RESEARCH_LOG.md). The pre-registered designs are
+in `experiments/*/DESIGN.md`.
+
+## Running an experiment
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install pytest   # dev tool only; the package is stdlib-only
+.venv/bin/python -m pytest                              # 120 tests
+
+export TEAMSCLAE_PROVIDER=anthropic
+export TEAMSCLAE_ANTHROPIC_CRED_CMD="<command whose stdout is your API key>"   # or export ANTHROPIC_API_KEY=...
+export TEAMSCLAE_MODEL=claude-haiku-5-5
+
+.venv/bin/python -m teamscale.experiment experiments/verification-question/experiment.yaml   # Phase A
+.venv/bin/python -m teamscale.experiment experiments/error-accumulation/experiment.yaml      # Phase A-2 (requires a passing calibration gate)
+# Phase A-3: see experiments/model-calibrated-generation/DESIGN.md
+
+.venv/bin/python -m teamscale.replay  results/<experiment>/<run-id>   # verify a run deterministically
+.venv/bin/python -m teamscale.analyze results/<experiment>/<run-id>   # regenerate figures from metrics.csv alone
+```
+
+Add `--fake` to run an identical pipeline offline on the
+deterministic fake backend ($0, no network) — that is how the
+pipeline itself is tested end to end. The API key is only ever
+obtained from the credential command or the process environment —
+never read from a file, logged, or written into results. Full
+per-experiment detail lives in each `experiments/*/DESIGN.md`.
+
+A run creates a fresh, immutable directory
+`results/<experiment>/<run-id>/` (writing into an existing run
+directory is refused) containing the manifest (config, git commit,
+versions, prompt hash), `metrics.csv`, traces, the graded sandboxes,
+the spend ledger, the summary, the calibration evidence where
+applicable, figures, and the `hashes.json` seal over all of it.
+
+**Replay** is deterministic and scoped honestly: it does *not*
+re-run the model (live sampling is not replayable). It regenerates
+each task from its seed, re-executes every check against the saved
+sandboxes, and recomputes token accounting and costs — asserting
+all of it matches the recorded metrics exactly. **Analyze** reads
+the recorded metrics alone; its bootstrap is seeded from the
+metrics file itself, so outputs are byte-identical on re-runs.
+
+**Honest scope.** AgentLab also contains *simulated* agents — an
+explicit probability model driven by a seeded RNG. The simulated
+grid is how the harness and strategies were developed and audited;
+its numbers say what the harness does under that stated model, not
+what real LLMs do. Every v1.0 result above comes from the real
+backends. The artifact audit on the simulated grid is where the
+lenient-vs-strict inflation (+0.125) and no-work-baseline (0.50
+under a lenient scorer, 0.00 strict) measurements come from.
+
+## What's inside
 
 | piece | what it does |
 |---|---|
-| `teamscale/experiment.py` | the experiment grid (450 runs): scaling tables, bend points, best strategy under a fixed budget |
-| grid axes | team size {1…32} × compute budget × `horizon_scale`, across three task families with different parallelism structure |
-| `teamscale/harness.py` | discrete-event scheduler over a dependency DAG, hard token budgets, per-run JSONL traces, budget-skip and error-propagation semantics — the machinery for running large teams reliably and debugging the failures that only appear at scale |
-| `long_horizon` + `teamscale/audits.py` | evaluation for long-horizon problems, and the audits that keep its results trustworthy |
-| `teamscale/metrics.py`, `python -m teamscale.trace_summary` | metrics and traces, so a run can be read and understood in minutes |
-| `budget_aware` strategy | difficulty-proportional allocation of a fixed budget, with reserves |
-| the audits | distinguish real gains from artifacts of the evaluation setup — this project's signature piece |
+| `teamscale/config_experiment.py` | config-driven experiments: one YAML file → one immutable, manifest-first run directory |
+| `teamscale/llm_backend.py` / `anthropic_backend.py` | real LLM backends (OpenAI / Anthropic): bounded tool loop, exact token accounting, blind mode |
+| `teamscale/real_tasks.py` | real codebase_repair tasks: seeded broken projects, ground truth = executed check exit codes |
+| `teamscale/chains.py` / `chain_experiment.py` | the chained-transformation family (Phase A-2) and its runner, with recovery-event logging |
+| `teamscale/calibrate.py` (+ `stats.py`) | the offline difficulty-calibration gate (hand-rolled stdlib statistics) |
+| `teamscale/ladder.py` / `probe.py` / `model_calibrate.py` | Phase A-3: difficulty ladder, blind probe harness, closed-loop calibration controller |
+| `teamscale/sealing.py` / `replay.py` | `hashes.json` seals; deterministic replay against recorded metrics |
+| `teamscale/analyze.py` | generic declared analysis: CIs, contrasts, survival + hazard, figures from metrics alone |
+| `teamscale/audits.py` | evaluation-artifact audits: lenient-vs-strict, no-work baseline, seed sensitivity |
+| `teamscale/experiment.py` / `harness.py` / `strategies.py` | the simulated grid: DAG scheduler, token budgets, five coordination strategies |
+| `teamscale/fake_backend.py` / `yaml_subset.py` | deterministic fake backend for tests and dry runs; the stdlib YAML-subset config parser |
 
-## design choices
+Task families: `research_sweep`, `codebase_repair`, and
+`long_horizon` (simulated grid); `codebase_repair` with hard defects
+(Phase A); the chained `error_accumulation` family (Phase A-2); and
+standalone ladder steps from that family's templates (Phase A-3).
+Strategies on real agents: `independent` = disjoint subtasks, no
+shared board; `orchestrated` = a lead assigns subtasks and maintains
+a shared text board; `verified` = orchestrated + an external check
+after each subtask, with exactly one retry. Agents execute
+sequentially within a run, so team size measures organization, not
+parallel wall-clock speedup.
 
-Three design choices define the project:
+## Limitations
 
-1. **Evaluation-artifact audits** (`teamscale/audits.py`), inspired by
-   *Unsolvability Ceiling in Multi-LLM Routing: An Empirical Study of
-   Evaluation Artifacts* — every headline number gets audited before it is
-   trusted:
-   - `lenient_vs_strict`: re-scores a run with a lenient (partial-credit)
-     verifier vs the strict ground truth and reports the inflation delta.
-   - `no_work_baseline`: a control "team" that returns topic-only guesses
-     without doing any work, scored the same way — it establishes the floor
-     the evaluation gives away for free.
-   - `seed_sensitivity`: the same config across 5 seeds, so a single-seed
-     gain is never quoted without its variance.
-2. **Budget-aware allocation** (`budget_aware` strategy): the total token
-   budget is split across subtasks in proportion to difficulty *before* the
-   run, with worst-case reserves; retries are skipped once the budget runs
-   low. Money goes to first attempts on hard subtasks, not re-rolls of easy
-   ones.
-3. **Real sandboxed verification for code tasks**: `codebase_repair` agents
-   write actual Python modules into a per-run sandbox directory (path
-   containment is enforced and tested), and ground truth is established by
-   *executing* each module's check script in a subprocess with a timeout —
-   not by comparing strings.
+- One model (Claude Haiku 5.5) and one task family per phase in the
+  real-backend experiments. Portability of any number here to
+  another model or domain is an open question, not a claim.
+- The verifier is the ground-truth check itself — a perfect
+  verifier. A learned or LLM-judge verifier would be noisier; that
+  regime is future work, not a v1.0 claim.
+- Five seeds per cell: per-cell intervals are wide by construction.
+  The citable numbers are the pooled and pre-registered contrasts.
+- Simulated-grid wall time is simulated; real-run wall time is
+  measured but sequential within a run, so it is not a parallel
+  speedup either.
+- Replay verifies grading and accounting from recorded artifacts;
+  it cannot and does not re-verify the model's live behaviour.
 
-A methodology note we hold ourselves to: all-or-nothing success ("every
-subtask correct") over a handful of seeds only takes values k/n and its
-apparent bend points are seed noise. Bend points here are therefore read off
-the **mean fraction-correct curve**; success rates are still reported in
-`results.csv` / `summary.json` alongside.
+## Roadmap
 
-## architecture
+Version 1.0 establishes calibration **correctness**: when a
+requested operating point exists in the generator, the controller
+finds it and validates it; when it does not exist, that is detected
+and reported. Version 1.1 will improve calibration **coverage** —
+finer ladder resolution, starting with the state-size cliff between
+32 and 64 that the 10% band exposed.
 
-```
-teamscale/
-  agents.py       SimulatedAgent (seeded, configurable cost/latency/error model)
-                  + AgentBackend protocol + LLMBackend stub
-  tasks.py        task DAGs and verifiers for the 3 families; sandbox helpers
-  strategies.py   solo / independent / orchestrated / verified / budget_aware
-                  + the difficulty-proportional budget allocator
-  harness.py      discrete-event run simulation; hard budget cap; JSONL traces
-  metrics.py      per-run metrics (success, fraction, tokens, wall time,
-                  coordination overhead, duplication rate, retries, per-agent load)
-  audits.py       lenient_vs_strict, no_work_baseline, seed_sensitivity
-  experiment.py   the grid CLI; scaling tables, bend points, best-under-budget
-  trace_summary.py  trace.jsonl -> a timeline a researcher can read in minutes
-experiments/
-  make_plots.py   scaling_curves.png / .svg from results.csv
-  results.csv / results.json / summary.json   (generated, git-ignored)
-  traces/, sandboxes/                          (generated, git-ignored)
-tests/            pytest suite (20 tests)
-```
+The scientific questions the platform was built for come after
+v1.0, run on calibrated benchmarks: error accumulation on calibrated
+families (Phase A-2's question, now identifiable), communication
+bandwidth (how topology and message budgets change scaling), and
+compute allocation between generation and verification. Each gets
+one question, one pre-registered design, and the same gate
+discipline. A replay viewer remains deferred until a result needs
+explaining badly enough to earn it.
 
-Task families: `research_sweep` (16 independent lookups — parallelizable),
-`codebase_repair` (8 file repairs, really executed), `long_horizon` (a
-12-link dependency chain — errors propagate, parallelism barely helps).
-
-## run it
-
-```bash
-python3 -m venv .venv && .venv/bin/pip install pytest matplotlib   # dev tools only; the package itself is stdlib-only
-
-.venv/bin/python -m pytest                                   # 20 tests
-.venv/bin/python -m teamscale.experiment                     # full grid (450 runs, ~25 s) + artifact audit
-.venv/bin/python experiments/make_plots.py                   # experiments/scaling_curves.png
-.venv/bin/python -m teamscale.trace_summary experiments/traces/long_horizon-verified-n8-b9666-h1.0-s0.jsonl
-```
-
-Useful knobs: `--seeds N`, `--out DIR`, `--no-audit`,
-`--audit-family/--audit-strategy/--audit-team` to choose the audited config.
-
-## headline results (this run; simulated agents)
-
-Grid: team sizes {1, 2, 4, 8, 16, 32} × 5 strategies × 3 families × 5 seeds
-= **450 runs**, fixed budgets (research_sweep 8,488 / codebase_repair 6,150 /
-long_horizon 9,666 tokens). Full data in `experiments/summary.json`.
-
-**Best strategy under the fixed budget — `verified`, in all three families**
-(verification + one retry costs the most tokens and still wins):
-
-| family | mean success rate | mean fraction correct | mean tokens |
-|---|---|---|---|
-| research_sweep | 0.333 | 0.923 | 8,138 |
-| codebase_repair | 0.300 | 0.821 | 5,835 |
-| long_horizon | 0.367 | 0.900 | 9,190 |
-
-**Bend points** (team size where the marginal gain in mean fraction correct
-per added agent drops below 2 points; per-strategy bends in `summary.json`):
-
-| family | bend (overall) | reading |
-|---|---|---|
-| research_sweep | 2 | gains are small but steady to n=32 for most strategies; wall time is where teams pay off (52.5 s solo → 8.3 s at n=8 → 4.9 s at n=32, orchestrated) |
-| codebase_repair | 2 | quality is flat in team size — the work is verification-bound, not parallelism-bound; `verified` bends at 4 |
-| long_horizon | 8 | the chain caps everything: orchestrated wall time is ~52–53 s at *every* team size; only verification moves quality (0.55 → 0.95 fraction correct at n=4) |
-
-**Coordination is measurable**: the `independent` strategy duplicates 16.1%
-of subtasks on average (orchestrated: 0% by construction) and spends the
-savings nowhere — its token count *rises* with team size (5,992 at n=1 →
-7,721 at n=32 on research_sweep) while quality stalls.
-
-**Artifact audit** (long_horizon / orchestrated / team of 4):
-
-```
-strict score (this run)      : 0.750
-lenient re-score             : 0.875  (inflation +0.125)
-no-work baseline             : strict 0.000 / lenient 0.500  <- what the eval gives away for free
-seed sensitivity (5 seeds)   : mean 0.733 +/- 0.111, range 0.333
-```
-
-Read that as: a lenient scorer would report this run as 0.875 instead of
-0.750; a team doing literally no work still banks 0.500 under that scorer;
-and the same config swings 0.583–0.917 across seeds, so no single-seed
-comparison in the tables above should be quoted without its neighbours.
-
-## limitations
-
-- Agents are simulated; the probability model is a stated assumption, not a
-  measurement. Curves show what the *harness and strategies* do under that
-  model — the shapes (chain-bound horizons, duplication waste, verification
-  value) are the findings, not the absolute numbers.
-- Wall time is simulated (step latency), not measured.
-- The strict success metric (all subtasks correct) is intentionally harsh
-  and noisy at 5 seeds; fraction correct is the reliable signal.
-- One retry, perfect verifier: the `verified` strategy's verifier is the
-  ground truth itself. A learned or LLM-judge verifier would be noisier —
-  that gap is exactly what the lenient audit is for.
-- Grid budget is fixed per family at 1.5× the expected solo cost; budgets
-  bind hardest on `verified` at large team sizes (coordination overhead
-  grows with n), which is visible as quality *dipping* at n=32 in places.
-
-## next steps
-
-- Plug a real LLM backend into `AgentBackend` and re-run a slice of the grid
-  (start with research_sweep at n ∈ {1, 4, 16}) to compare curve shapes
-  against the simulated model.
-- Long-horizon suites in the style of GAIA / WebArena: longer chains with
-  tool use, scored by the same audits.
-- Multi-process execution so wall time is measured, not simulated, and the
-  sandbox runs workers in parallel for real.
-- A noisy-verifier variant of `verified` (verifier accuracy as a knob) to
-  find where verification stops paying.
-- More seeds + confidence intervals on the scaling tables by default.
-
-## license
+## License
 
 MIT
+
+---
+
+AgentLab does not guarantee that every benchmark can be calibrated. It guarantees that unsupported operating regimes are detected and reported rather than silently approximated.

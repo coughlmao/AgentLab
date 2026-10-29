@@ -1,0 +1,82 @@
+{
+ "experiment": "verification-question",
+ "question": "When does external verification improve team performance?",
+ "run_id": "20261029T030319Z-849d8f77",
+ "config": {
+  "name": "verification-question",
+  "question": "When does external verification improve team performance?",
+  "provider": "anthropic",
+  "model": "claude-haiku-5-5",
+  "difficulty": "hard",
+  "blind": true,
+  "sizes": [
+   1,
+   2,
+   4,
+   8
+  ],
+  "strategies": [
+   "independent",
+   "orchestrated",
+   "verified"
+  ],
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "per_run_token_cap": 400000,
+  "spend_cap_usd": 15.0,
+  "workers": 4,
+  "output_root": "results"
+ },
+ "config_sha256": "849d8f770994a9bcce393373407f1464568d470aaa428c6677b63c1ad5bb8ab4",
+ "config_source": "experiments/verification-question/experiment.yaml",
+ "git": {
+  "commit": "60413a9e4c4eed426bd07e77b1106af9abb5ed7e",
+  "dirty": true
+ },
+ "code_version": "0.1.0",
+ "provider": "anthropic",
+ "requested_provider": "anthropic",
+ "model": "claude-haiku-5-5",
+ "pricing": {
+  "model": "claude-haiku-5-5",
+  "input_per_1m_usd": 0.1,
+  "output_per_1m_usd": 0.5
+ },
+ "difficulty": "hard",
+ "blind": true,
+ "grid": {
+  "sizes": [
+   1,
+   2,
+   4,
+   8
+  ],
+  "strategies": [
+   "independent",
+   "orchestrated",
+   "verified"
+  ],
+  "seeds": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ]
+ },
+ "n_runs_planned": 60,
+ "per_run_token_cap": 400000,
+ "spend_cap_usd": 15.0,
+ "workers": 4,
+ "started_at": "2026-10-29T03:03:19.289182+00:00",
+ "host": {
+  "system": "Linux",
+  "machine": "x86_64",
+  "python": "3.12.3"
+ }
+}

@@ -1,0 +1,53 @@
+# AgentLab Phase A experiment.
+#
+# The one question: when does external verification improve team
+# performance?
+#
+# Design notes (the reasoning lives in the README and the run's
+# SUMMARY.md):
+# - blind: true removes the run_check tool from the agents' own tool
+#   set. In the sighted pilot every configuration saturated at fraction
+#   correct 1.000, because agents self-checked inside each attempt and
+#   strategy-level verification never had a failure to catch. Blind mode
+#   makes the runner's external check (the verified strategy) the only
+#   check feedback in the system.
+# - difficulty: hard -- the subtler defect catalogue (boundary-only,
+#   cross-module, and interacting multi-defect subtasks).
+# - the primary contrast is verified vs orchestrated: same coordination,
+#   the only difference is the external check + one retry.
+# - 5 seeds per cell (60 runs) so the analysis can put bootstrap
+#   confidence intervals on every cell and on that contrast.
+#
+# Run it (from the repository root):
+#   TEAMSCLAE_ANTHROPIC_CRED_CMD="<command whose stdout is your API key>" \
+#     .venv/bin/python -m teamscale.experiment experiments/verification-question/experiment.yaml
+# Then:
+#   .venv/bin/python -m teamscale.replay results/verification-question/<run-id>
+#   .venv/bin/python -m teamscale.analyze results/verification-question/<run-id>
+
+name: verification-question
+question: "When does external verification improve team performance?"
+provider: anthropic
+model: claude-haiku-5-5
+difficulty: hard
+blind: true
+sizes: [1, 2, 4, 8]
+strategies: [independent, orchestrated, verified]
+seeds: [0, 1, 2, 3, 4]
+per_run_token_cap: 400000
+spend_cap_usd: 15.00
+workers: 4
+output_root: results
+# The analysis declaration (ENGINEERING.md, invariant 4): the generic
+# analysis reads these column/contrast declarations from the manifest;
+# it contains no experiment logic of its own. This is exactly the
+# declaration under which the Phase A results were produced.
+analysis:
+  series: strategy
+  group_by: team_size
+  value: fraction_correct
+  x_scale: log2
+  x_label: "team size (log2)"
+  contrast:
+    positive: verified
+    negative: orchestrated

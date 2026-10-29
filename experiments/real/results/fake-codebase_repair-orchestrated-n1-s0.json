@@ -1,0 +1,42 @@
+{
+ "run_id": "fake-codebase_repair-orchestrated-n1-s0",
+ "backend": "fake",
+ "model": "fake",
+ "family": "codebase_repair",
+ "strategy": "orchestrated",
+ "team_size": 1,
+ "seed": 0,
+ "success": false,
+ "fraction_correct": 0.625,
+ "n_subtasks": 8,
+ "n_correct": 5,
+ "tokens_in": 15026,
+ "tokens_out": 4480,
+ "total_tokens": 19506,
+ "cost_usd": 0.0,
+ "wall_time_s": 1.335,
+ "retries": 0,
+ "duplicates": 0,
+ "attempts": {
+  "rr-00": 1,
+  "rr-01": 1,
+  "rr-02": 1,
+  "rr-03": 1,
+  "rr-04": 1,
+  "rr-05": 1,
+  "rr-06": 1,
+  "rr-07": 1
+ },
+ "errors": {},
+ "initial_all_broken": true,
+ "per_subtask_correct": {
+  "rr-00": false,
+  "rr-01": true,
+  "rr-02": true,
+  "rr-03": false,
+  "rr-04": true,
+  "rr-05": false,
+  "rr-06": true,
+  "rr-07": true
+ }
+}

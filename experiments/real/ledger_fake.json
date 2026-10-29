@@ -1,0 +1,31 @@
+{
+ "cap_usd": 15.0,
+ "spent_usd": 0.0,
+ "model": "fake",
+ "runs": [
+  {
+   "run_id": "fake-codebase_repair-orchestrated-n1-s0",
+   "cost_usd": 0.0,
+   "tokens_in": 15026,
+   "tokens_out": 4480
+  },
+  {
+   "run_id": "fake-codebase_repair-orchestrated-n2-s0",
+   "cost_usd": 0.0,
+   "tokens_in": 15030,
+   "tokens_out": 4480
+  },
+  {
+   "run_id": "fake-codebase_repair-verified-n1-s0",
+   "cost_usd": 0.0,
+   "tokens_in": 20714,
+   "tokens_out": 6160
+  },
+  {
+   "run_id": "fake-codebase_repair-verified-n2-s0",
+   "cost_usd": 0.0,
+   "tokens_in": 16917,
+   "tokens_out": 5040
+  }
+ ]
+}

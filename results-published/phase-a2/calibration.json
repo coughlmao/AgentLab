@@ -1,0 +1,145 @@
+{
+ "version": "calibration-1",
+ "generator_version": "chain-gen-1",
+ "n_chains": 500,
+ "n_steps_per_chain": 50,
+ "n_steps_total": 25000,
+ "seed_base": 100000,
+ "decile_size": 5,
+ "criteria": {
+  "bh_q": 0.05,
+  "cramers_v_negligible_below": 0.1,
+  "eta_squared_negligible_below": 0.01,
+  "rule": "no test BH-significant AND every effect size negligible AND shuffle control null"
+ },
+ "tests": [
+  {
+   "name": "template_mix",
+   "kind": "chi_square",
+   "threshold": 0.1,
+   "statistic": 46.819764,
+   "df": 72,
+   "p_value": 0.990666,
+   "effect_size": 0.0153,
+   "effect_name": "cramers_v",
+   "p_adjusted": 1.0,
+   "significant": false,
+   "negligible": true
+  },
+  {
+   "name": "op_count",
+   "kind": "kruskal_wallis",
+   "threshold": 0.01,
+   "statistic": 2.883085,
+   "df": 9,
+   "p_value": 0.96875,
+   "effect_size": 0.0,
+   "effect_name": "eta_squared_h",
+   "p_adjusted": 1.0,
+   "significant": false,
+   "negligible": true
+  },
+  {
+   "name": "state_size",
+   "kind": "kruskal_wallis",
+   "statistic": 0.0,
+   "df": 9,
+   "p_value": 1.0,
+   "effect_size": 0.0,
+   "effect_name": "eta_squared_h",
+   "threshold": 0.01,
+   "note": "proxy is constant across all steps",
+   "p_adjusted": 1.0,
+   "significant": false,
+   "negligible": true
+  },
+  {
+   "name": "spec_len",
+   "kind": "kruskal_wallis",
+   "threshold": 0.01,
+   "statistic": 5.366419,
+   "df": 9,
+   "p_value": 0.801269,
+   "effect_size": 0.0,
+   "effect_name": "eta_squared_h",
+   "p_adjusted": 1.0,
+   "significant": false,
+   "negligible": true
+  },
+  {
+   "name": "probe_count",
+   "kind": "kruskal_wallis",
+   "statistic": 0.0,
+   "df": 9,
+   "p_value": 1.0,
+   "effect_size": 0.0,
+   "effect_name": "eta_squared_h",
+   "threshold": 0.01,
+   "note": "proxy is constant across all steps",
+   "p_adjusted": 1.0,
+   "significant": false,
+   "negligible": true
+  },
+  {
+   "name": "probe_visibility",
+   "kind": "kruskal_wallis",
+   "threshold": 0.01,
+   "statistic": 4.17522,
+   "df": 9,
+   "p_value": 0.899506,
+   "effect_size": 0.0,
+   "effect_name": "eta_squared_h",
+   "p_adjusted": 1.0,
+   "significant": false,
+   "negligible": true
+  }
+ ],
+ "shuffle_control": {
+  "tests": [
+   {
+    "name": "template_mix",
+    "p_value": 0.782641,
+    "p_adjusted": 1.0,
+    "significant": false,
+    "effect_size": 0.017665
+   },
+   {
+    "name": "op_count",
+    "p_value": 0.793017,
+    "p_adjusted": 1.0,
+    "significant": false,
+    "effect_size": 0.0
+   },
+   {
+    "name": "state_size",
+    "p_value": 1.0,
+    "p_adjusted": 1.0,
+    "significant": false,
+    "effect_size": 0.0
+   },
+   {
+    "name": "spec_len",
+    "p_value": 0.288316,
+    "p_adjusted": 1.0,
+    "significant": false,
+    "effect_size": 7.3e-05
+   },
+   {
+    "name": "probe_count",
+    "p_value": 1.0,
+    "p_adjusted": 1.0,
+    "significant": false,
+    "effect_size": 0.0
+   },
+   {
+    "name": "probe_visibility",
+    "p_value": 0.695135,
+    "p_adjusted": 1.0,
+    "significant": false,
+    "effect_size": 0.0
+   }
+  ],
+  "null": true
+ },
+ "gate": "pass"
+}

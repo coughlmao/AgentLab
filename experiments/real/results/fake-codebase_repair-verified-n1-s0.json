@@ -1,0 +1,42 @@
+{
+ "run_id": "fake-codebase_repair-verified-n1-s0",
+ "backend": "fake",
+ "model": "fake",
+ "family": "codebase_repair",
+ "strategy": "verified",
+ "team_size": 1,
+ "seed": 0,
+ "success": false,
+ "fraction_correct": 0.875,
+ "n_subtasks": 8,
+ "n_correct": 7,
+ "tokens_in": 20714,
+ "tokens_out": 6160,
+ "total_tokens": 26874,
+ "cost_usd": 0.0,
+ "wall_time_s": 1.604,
+ "retries": 3,
+ "duplicates": 0,
+ "attempts": {
+  "rr-00": 2,
+  "rr-01": 1,
+  "rr-02": 1,
+  "rr-03": 2,
+  "rr-04": 1,
+  "rr-05": 2,
+  "rr-06": 1,
+  "rr-07": 1
+ },
+ "errors": {},
+ "initial_all_broken": true,
+ "per_subtask_correct": {
+  "rr-00": true,
+  "rr-01": true,
+  "rr-02": true,
+  "rr-03": true,
+  "rr-04": true,
+  "rr-05": false,
+  "rr-06": true,
+  "rr-07": true
+ }
+}

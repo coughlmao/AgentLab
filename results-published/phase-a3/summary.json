@@ -1,0 +1,39 @@
+{
+ "run_id": "20261029T071722Z-b4163d9b",
+ "family": "model_calibrated_generation",
+ "provider": "anthropic",
+ "model": "claude-haiku-5-5",
+ "blind": true,
+ "generator_version": "ladder-gen-1",
+ "calibration_version": "model-calibration-1",
+ "bands": [
+  {
+   "label": "t10",
+   "target": 0.1,
+   "tolerance": 0.03,
+   "status": "declared_failure",
+   "failure_class": "no_stable_setting",
+   "setting": null,
+   "validation_pass": null
+  },
+  {
+   "label": "t5",
+   "target": 0.05,
+   "tolerance": 0.02,
+   "status": "converged",
+   "failure_class": null,
+   "setting": "inter-s32-k4",
+   "validation_pass": true
+  }
+ ],
+ "monotonicity_verdict": "monotone non-decreasing",
+ "total_probes": 1500,
+ "total_api_calls": 2971,
+ "total_tokens_in": 6033896,
+ "total_tokens_out": 2961216,
+ "total_cost_usd": 2.084017,
+ "ledger_spent_usd": 2.084017,
+ "spend_cap_usd": 10.0,
+ "wall_clock_s": 3136.094,
+ "issues": []
+}
