@@ -8,14 +8,15 @@ from teamscale.llm_backend import SandboxTools, resolve_api_key, BackendError
 import teamscale.real_pilot as rp
 from teamscale.real_tasks import check_all, make_real_task, materialize, run_check
 from teamscale.tasks import SandboxViolation
+from teamscale.llm_backend import teamscale_env
 
 
 def _factory(competence=1.0):
     return lambda cfg: FakeLLMBackend(competence=competence,
                                       seed=cfg["seed"] * 100 + cfg["team_size"])
 
-
-# ------------------------------------------------------------- task generation
+# --
+# ----------------------------------------------------------- task generation
 def test_generated_tasks_fail_before_and_pass_after(tmp_path):
     for seed in (0, 1, 2, 3):
         task = make_real_task(seed=seed)
@@ -126,3 +127,154 @@ def test_no_key_configured_is_a_clear_error(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     with pytest.raises(BackendError, match="no API key configured"):
         resolve_api_key()
+
+#--------------------------------------------------------------------
+def test_teamscale_env_prefers_correct_spelling(monkeypatch):
+    monkeypatch.setenv("TEAMSCALE_MODEL", "new-model")
+    monkeypatch.setenv("TEAMSCLAE_MODEL", "legacy-model")
+
+    assert teamscale_env("MODEL") == "new-model"
+
+
+def test_teamscale_env_falls_back_to_legacy(monkeypatch):
+    monkeypatch.delenv("TEAMSCALE_MODEL", raising=False)
+    monkeypatch.setenv("TEAMSCLAE_MODEL", "legacy-model")
+
+    assert teamscale_env("MODEL") == "legacy-model"
+
+
+def test_teamscale_env_uses_default_when_unset(monkeypatch):
+    monkeypatch.delenv("TEAMSCALE_MODEL", raising=False)
+    monkeypatch.delenv("TEAMSCLAE_MODEL", raising=False)
+
+    assert teamscale_env("MODEL", "default-model") == "default-model"
+
+
+def test_teamscale_env_empty_new_value_wins(monkeypatch):
+    monkeypatch.setenv("TEAMSCALE_MODEL", "")
+    monkeypatch.setenv("TEAMSCLAE_MODEL", "legacy-model")
+
+    assert teamscale_env("MODEL", "default-model") == ""
+
+
+def test_openai_credential_command_prefers_new_prefix(monkeypatch):
+    monkeypatch.setenv("TEAMSCALE_CRED_CMD", "printf new-key")
+    monkeypatch.setenv("TEAMSCLAE_CRED_CMD", "printf legacy-key")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    assert resolve_api_key() == "new-key"
+
+
+def test_openai_model_prefers_new_prefix(monkeypatch):
+    from teamscale.llm_backend import OpenAILLMBackend
+
+    monkeypatch.setenv("TEAMSCALE_MODEL", "new-model")
+    monkeypatch.setenv("TEAMSCLAE_MODEL", "legacy-model")
+
+    backend = OpenAILLMBackend(api_key="test-key")
+    assert backend.model == "new-model"
+
+
+def test_pilot_prefers_new_provider_and_spend_cap_env(monkeypatch):
+    monkeypatch.setenv("TEAMSCALE_PROVIDER", "openai")
+    monkeypatch.setenv("TEAMSCLAE_PROVIDER", "anthropic")
+    monkeypatch.setenv("TEAMSCALE_SPEND_CAP_USD", "7.50")
+    monkeypatch.setenv("TEAMSCLAE_SPEND_CAP_USD", "99.00")
+
+    observed = {}
+
+    class FakeLedger:
+        def __init__(self, path, cap_usd, model):
+            observed["cap_usd"] = cap_usd
+            observed["model"] = model
+            self.cap_usd = cap_usd
+            self.spent_usd = 0.0
+
+        def can_start(self, *args, **kwargs):
+            return False
+
+    monkeypatch.setattr(rp, "SpendLedger", FakeLedger)
+    monkeypatch.setattr(
+        rp, "OpenAILLMBackend",
+        lambda *args, **kwargs: observed.update(provider="openai"),
+    )
+    monkeypatch.setattr(
+        rp, "AnthropicLLMBackend",
+        lambda *args, **kwargs: observed.update(provider="anthropic"),
+    )
+
+    rp.main(["--sizes", "1", "--seeds", "0"])
+
+    assert observed["provider"] == "openai"
+    assert observed["cap_usd"] == pytest.approx(7.50)
+
+
+def test_pilot_prefers_new_difficulty_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("TEAMSCALE_DIFFICULTY", "hard")
+    monkeypatch.setenv("TEAMSCLAE_DIFFICULTY", "standard")
+    monkeypatch.setenv("TEAMSCALE_PROVIDER", "openai")
+    monkeypatch.setenv("TEAMSCALE_SPEND_CAP_USD", "7.50")
+
+    observed = {}
+
+    class FakeLedger:
+        def __init__(self, path, cap_usd, model):
+            self.cap_usd = cap_usd
+            self.spent_usd = 0.0
+            observed["cap_usd"] = cap_usd
+
+    def fake_run_pilot(**kwargs):
+        observed.update(kwargs)
+        return {
+            "runs_completed": 0,
+            "runs_skipped_spend_cap": [],
+            "total_tokens_in": 0,
+            "total_tokens_out": 0,
+            "total_cost_usd": 0.0,
+            "ledger_spent_usd": 0.0,
+            "spend_cap_usd": kwargs["spend_cap_usd"],
+            "mean_fraction_correct": 0.0,
+        }
+
+    monkeypatch.setattr(rp, "SpendLedger", FakeLedger)
+    monkeypatch.setattr(
+        rp, "OpenAILLMBackend",
+        lambda *args, **kwargs: observed.update(provider="openai"),
+    )
+    monkeypatch.setattr(rp, "run_pilot", fake_run_pilot)
+
+    assert rp.main(["--out", str(tmp_path)]) == 0
+    assert observed["difficulty"] == "hard"
+    assert observed["spend_cap_usd"] == pytest.approx(7.50)
+
+
+def test_pilot_difficulty_cli_overrides_environment(monkeypatch, tmp_path):
+    monkeypatch.setenv("TEAMSCALE_DIFFICULTY", "hard")
+    monkeypatch.setenv("TEAMSCLAE_DIFFICULTY", "standard")
+    monkeypatch.setenv("TEAMSCALE_PROVIDER", "openai")
+
+    observed = {}
+
+    def fake_run_pilot(**kwargs):
+        observed.update(kwargs)
+        return {
+            "runs_completed": 0,
+            "runs_skipped_spend_cap": [],
+            "total_tokens_in": 0,
+            "total_tokens_out": 0,
+            "total_cost_usd": 0.0,
+            "ledger_spent_usd": 0.0,
+            "spend_cap_usd": kwargs["spend_cap_usd"],
+            "mean_fraction_correct": 0.0,
+        }
+
+    monkeypatch.setattr(rp, "run_pilot", fake_run_pilot)
+    monkeypatch.setattr(
+        rp, "OpenAILLMBackend",
+        lambda *args, **kwargs: None,
+    )
+
+    assert rp.main([
+        "--out", str(tmp_path), "--difficulty", "standard"
+    ]) == 0
+    assert observed["difficulty"] == "standard"

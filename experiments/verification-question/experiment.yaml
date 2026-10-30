@@ -19,8 +19,11 @@
 #   confidence intervals on every cell and on that contrast.
 #
 # Run it (from the repository root):
-#   TEAMSCLAE_ANTHROPIC_CRED_CMD="<command whose stdout is your API key>" \
+#   TEAMSCALE_ANTHROPIC_CRED_CMD="<command whose stdout is your API key>" \
 #     .venv/bin/python -m teamscale.experiment experiments/verification-question/experiment.yaml
+# Note: TEAMSCLAE_ANTHROPIC_CRED_CMD is a legacy alias.
+# Use TEAMSCALE_ANTHROPIC_CRED_CMD for new runs.
+#
 # Then:
 #   .venv/bin/python -m teamscale.replay results/verification-question/<run-id>
 #   .venv/bin/python -m teamscale.analyze results/verification-question/<run-id>

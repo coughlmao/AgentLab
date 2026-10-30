@@ -29,12 +29,14 @@
 #   .venv/bin/python -m teamscale.config_experiment \
 #     experiments/model-calibrated-generation/experiment.yaml --fake
 #   git tag agentlab-a3-v1            # after the build commit
-#   TEAMSCLAE_PROVIDER=anthropic \
-#   TEAMSCLAE_ANTHROPIC_CRED_CMD="..." \
+#   TEAMSCALE_PROVIDER=anthropic \
+#   TEAMSCALE_ANTHROPIC_CRED_CMD="..." \
 #     .venv/bin/python -m teamscale.config_experiment \
 #     experiments/model-calibrated-generation/experiment.yaml
 #   .venv/bin/python -m teamscale.replay \
 #     results/model-calibrated-generation/<run-id>
+# Note: TEAMSCLAE_ANTHROPIC_CRED_CMD is a legacy alias.
+# Use TEAMSCALE_ANTHROPIC_CRED_CMD for new runs.
 
 name: model-calibrated-generation
 question: "Can the generator produce task families whose measured first-attempt failure rate on the target model lands inside a requested band, and stay there on held-out seeds?"

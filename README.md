@@ -194,11 +194,11 @@ in `experiments/*/DESIGN.md`.
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install pytest   # dev tool only; the package is stdlib-only
-.venv/bin/python -m pytest                              # 120 tests
+.venv/bin/python -m pytest                              # 132 tests
 
-export TEAMSCLAE_PROVIDER=anthropic
-export TEAMSCLAE_ANTHROPIC_CRED_CMD="<command whose stdout is your API key>"   # or export ANTHROPIC_API_KEY=...
-export TEAMSCLAE_MODEL=claude-haiku-5-5
+export TEAMSCALE_PROVIDER=anthropic
+export TEAMSCALE_ANTHROPIC_CRED_CMD="<command whose stdout is your API key>"   # or export ANTHROPIC_API_KEY=...
+export TEAMSCALE_MODEL=claude-haiku-5-5
 
 .venv/bin/python -m teamscale.experiment experiments/verification-question/experiment.yaml   # Phase A
 .venv/bin/python -m teamscale.experiment experiments/error-accumulation/experiment.yaml      # Phase A-2 (requires a passing calibration gate)

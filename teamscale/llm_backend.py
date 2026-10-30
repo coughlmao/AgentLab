@@ -11,10 +11,12 @@ Design constraints:
 - Standard library only (urllib). No SDK dependency.
 - The API key is NEVER read from a file, logged, printed, or written into
   traces or results. It comes from exactly two places:
-    1. the shell command in env TEAMSCLAE_CRED_CMD (its stdout is the key), or
+    1. the shell command in env TEAMSCALE_CRED_CMD (its stdout is the key;
+       TEAMSCLAE_CRED_CMD is supported as a legacy alias), or
     2. env OPENAI_API_KEY, if already present in the process environment.
   If neither is configured, construction raises a clear error.
-- Model: env TEAMSCLAE_MODEL, default "gpt-5-mini".
+- Model: env TEAMSCALE_MODEL, default "gpt-5-mini"
+  (TEAMSCLAE_MODEL is supported as a legacy alias).
 - Every tool call is sandbox-contained (teamscale.tasks.ensure_within):
   the model can only touch files inside the run's sandbox directory.
 - Token usage is taken from the API responses themselves (prompt/completion
@@ -51,6 +53,14 @@ MAX_MODEL_CALLS = 10
 CHECK_TIMEOUT = 10
 
 
+def teamscale_env(name: str, default: str | None = None) -> str | None:
+    """Read a TEAMSCALE_ variable, falling back to the legacy TEAMSCLAE_ name."""
+    value = os.environ.get(f"TEAMSCALE_{name}")
+    if value is not None:
+        return value
+    return os.environ.get(f"TEAMSCLAE_{name}", default)
+
+
 class BackendError(RuntimeError):
     pass
 
@@ -61,21 +71,23 @@ def resolve_api_key() -> str:
     The key is returned to the caller (the backend constructor) and nowhere
     else; it is never logged or persisted by this project.
     """
-    cmd = os.environ.get("TEAMSCLAE_CRED_CMD", "").strip()
+    cmd = (teamscale_env("CRED_CMD", "") or "").strip()
     if cmd:
         proc = subprocess.run(cmd, shell=True, capture_output=True,
                               text=True, timeout=30)
         key = proc.stdout.strip()
         if proc.returncode != 0 or not key:
             raise BackendError(
-                "TEAMSCLAE_CRED_CMD ran but produced no key on stdout "
+                "TEAMSCALE_CRED_CMD (legacy alias: TEAMSCLAE_CRED_CMD) "
+                "ran but produced no key on stdout "
                 f"(exit {proc.returncode}); check the credential command.")
         return key
     key = os.environ.get("OPENAI_API_KEY", "").strip()
     if key:
         return key
     raise BackendError(
-        "no API key configured: set TEAMSCLAE_CRED_CMD to a command whose "
+        "no API key configured: set TEAMSCALE_CRED_CMD "
+        "(legacy alias: TEAMSCLAE_CRED_CMD) to a command whose "
         "stdout is the key, or export OPENAI_API_KEY.")
 
 
@@ -270,7 +282,7 @@ class OpenAILLMBackend:
     def __init__(self, model: str | None = None, api_key: str | None = None,
                  transport=None, max_model_calls: int = MAX_MODEL_CALLS,
                  blind: bool = False):
-        self.model = model or os.environ.get("TEAMSCLAE_MODEL", DEFAULT_MODEL)
+        self.model = model or teamscale_env("MODEL", DEFAULT_MODEL)
         self._api_key = api_key if api_key is not None else resolve_api_key()
         self._transport = transport or _default_transport
         self.max_model_calls = max_model_calls
